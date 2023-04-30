@@ -1,0 +1,110 @@
+Host ==> It is the server where the datadog instance is installed. ex - VM, Kubernetes node etc.
+Datadog agent ==> Datadog agent is a software that runs on the host. It collects events and metrics from host and send them to datadog.
+Datadog tag ==> To distinguish datadog host we use datadog tags. For ex- version:dev, version:prod etc
+#######################################################################################################################################################################
+
+1. Main Configuration file is stored in C:\ProgramData\Datadog\datadog.yaml
+2. Configuration file for integration are in C:\ProgramData\Datadog\conf.d\
+
+we need to update anything in these files, we need to restart the datadog agent.
+#######################################################################################################################################################################
+
+==> data integration with IIS
+
+1. goto C:\ProgramData\Datadog\conf.d\iis.d\    and update the name of the file "conf.yaml.example" to "conf.yaml
+2. Restart datadog agent from datadog instance.
+3. Datadog Homepage -> "integrations" -> search "IIS" -> configuration" -> "install configuration"
+
+#######################################################################################################################################################################
+
+Under "Infrastructure" tab we can view or search the instances where we have installed the datadog agent.
+
+#######################################################################################################################################################################
+
+Under "Metrics" we can see different types of metrics for all hosts.
+#######################################################################################################################################################################
+##Datadog APM##
+
+==> Setup APM steps
+
+1. Datadog agent installation
+2. APM tracer client installation  {Datadog Homepage -> "APM" -> "Introduction" -> "Get started" -> "Host based" -> "Choose your language" ==.Net}
+	a. install the .net Package.
+	b. instrument your application --> run the PowerShell script as admin
+3. restart the datadog agent
+
+==> Under "APM" ==> "Services" we can see all the running services i.e. web service or database service etc.
+==> Under "APM" ==> "Services Maps" we can see how different services are connecting to each other.
+==> Uner "APM" ==> "Traces" we can view all transactions inside our application.
+==> Under "APM" ==> "Error Tracking" we can view all the errors inside our application.
+#######################################################################################################################################################################
+##Datadog Profilling## ==> We can profile or debug our code so that we can see method name, class name and line number etc.
+
+==> Setup datadog profiler
+1. goto official datadog page and download and install ".Net Monitoring MSI installer".
+2. Restart datadog agent.
+3. Now under "APM" --> "Profile search".
+#######################################################################################################################################################################
+
+##Datadog Dashboard##
+
+We can create a new dashboard in datadog by navigating to "Datadog Homepage" -> "Dashboard List"
+--> We can also use variables in dashboards.
+
+#######################################################################################################################################################################
+
+## Monitors ## --> To create alerts on "Host", "APM", "Metrics" etc.
+
+==> For each endpoint in APM, Datadog also provides suggested Monitors (Alerts)
+==> We can also setup a downtime for the alerts.
+
+==> Integration with slack ==>
+1. Create an account on slack ==> Create a workspace ==> Create a channel.
+2. Now on Datadog ==> "Integration" ==> Search "Slack" => "connect SLack Account" "Configuration". Allow permission from Slack server.
+3. "Add Channel"
+
+==> We can also integrate Datadog alerts with Pagrduty.
+
+#######################################################################################################################################################################
+
+1. SLA (Service Level agreement)
+SLA is an agreement between provider & Client.
+This agreement represents promises and consequences if you fail to keep them.
+Agreement is about measurable metrics like uptime, responsiveness, and responsibilities
+
+2. SLO (Service Level objectives)
+Those are the objectives (promises,goals) which your team must hit to meet the agreement (SLA)
+
+3. SLI (Service Level indicator)
+The real number of peerformance who determines is SLA successsfull or not.
+
+4. Error Budget
+
+This is the allowance value before the SLO violations.
+An error budget is 1 minus the SLO of the service. 
+
+Example:
+We define SLO for success rate to be 99.90%
+This means that our Error Budget is  100% - 99.90% = 0.10%.
+
+If our service receives 1,000,000 requests in a month.
+Error Budget requests is 0.10% x 1,000,000 requests = 1,000 allowed error requests
+This means that you can have 1,000 errors requests - and it is good, this is your error budget.
+
+What is 6O% from the Error Budget?  ==> 60% from my Error Budget means 60% from 1,000 allowed error request which is 600 requests.
+#######################################################################################################################################################################
+## Synthetic Monitoring (Api test) ==> We can create and monitor alerts on Get, Post methods by going -> "Datadog Homepage" -> "UX monitoring" -> "Synthetic tests" -> "Create a new API test"
+
+==> Now under "Define Request" we can select the Method i.e. "GET, PUT,POST" etc and also under "URL" we can mention the URL and click on "Test URL" and after that we can create an allert as per our requirement.
+
+## Snthetic Monitoring (Browse test) ==> We can create and monitor alerts on Browser page availability, if page contains a particular test etc -> "Datadog Homepage" -> "UX Monitoring" -> "Browser test" -. "Create a new browser test"
+
+#######################################################################################################################################################################
+ ## log management for a.net based application##
+
+1. Datadog agent - we need to enable logs in datagog.yaml file (logs_enabled: true)
+2. create "csharp.d" folder in Datadog\conf.d with a conf.yaml file inside.
+3. create the empty Datadog.log file
+4. Application changes - install Nuget Package for NLog
+5. Configure NLog (using NLog.conf) to save logs to a file and this file will be accessed from Datadog later.
+6. Go in Datadog log Explorer and analyze your data.

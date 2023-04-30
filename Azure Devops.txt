@@ -1,0 +1,109 @@
+##### Continuos integration for java based applications ##########
+
+1. Build pipeline --> select a template == "Maven"
+2. Used cobertura (Jacoco is another example) for Code coverage.
+
+
+pool:
+  vmImage: 'ubuntu-16.04' # Hosted Ubuntu 1604
+  demands: maven
+
+steps:
+- task: Maven@3
+  displayName: 'Maven app/pom.xml'
+  inputs:
+    mavenPomFile: 'app/pom.xml'
+    codeCoverageToolOption: Cobertura
+
+- task: CopyFiles@2
+  displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
+  inputs:
+    SourceFolder: '$(system.defaultworkingdirectory)'
+    Contents: '**/*.jar'
+    TargetFolder: '$(build.artifactstagingdirectory)'
+  condition: succeededOrFailed()
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact: drop'
+  inputs:
+    PathtoPublish: '$(build.artifactstagingdirectory)'
+  condition: succeededOrFailed()
+############################################################################################################################################################################ Continuos integration for .Net based applications ##########
+
+1. Build pipeline --> select a template == "ASP .Net core"
+
+trigger: 'none' # will disable CI builds entirely
+
+pool:
+  vmImage: 'windows-2019'
+    
+variables:
+  BuildConfiguration: release
+  
+steps:
+
+- task: UseDotNet@2
+  displayName: Install .NET 6 sdk
+  inputs:
+    packageType: sdk
+    version: 6.0.x
+    installationPath: $(Agent.ToolsDirectory)/dotnet
+
+- task: DotNetCoreCLI@2
+  displayName: Restore Nuget Packages
+  inputs:
+    command: restore
+    projects: '**/WebApp.csproj'
+
+- task: DotNetCoreCLI@2
+  displayName: Build Web App
+  inputs:
+    projects: '**/WebApp.csproj'
+    arguments: '--configuration $(BuildConfiguration)'
+
+- task: DotNetCoreCLI@2
+  displayName: Run Unit Tests
+  inputs:
+    command: test
+    projects: '**/*UnitTest*.csproj'
+    arguments: '--configuration $(BuildConfiguration)'
+
+- task: DotNetCoreCLI@2
+  displayName: Create Web App Package (.zip)
+  inputs:
+    command: publish
+    publishWebProjects: True
+    arguments: '--configuration $(BuildConfiguration) --output $(build.artifactstagingdirectory)'
+    zipAfterPublish: True
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact (WebApp.zip)'
+  inputs:
+    PathtoPublish: '$(build.artifactstagingdirectory)'
+
+#######################################################################################################################################################################
+####### Continuos integration with database #########
+--> We need to generate a DACPAC file (A DACPAC file is a package that contains the sql scripts & stored procedures for the new schema of the database) and it is build using MSBUILD
+
+- job: Database
+  displayName: 'Build Database'
+  pool:
+    vmImage: 'windows-2019'
+
+  steps:
+  - task: MSBuild@1
+    displayName: 'Build solution WebApp.Database.sqlproj'
+    inputs:
+      solution: WebApp.Database/WebApp.Database.sqlproj
+      msbuildArguments: '/p:OutDir=$(Build.ArtifactStagingDirectory)'
+  
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact (Dacpac)'
+    inputs:
+      ArtifactName: dacpac
+#######################################################################################################################################################################
+####### Continuos integration with database #########
+
+==> When we provision an AKS, then an another resource group will be created by azure which will contains all the resources to run the AKS cluster (i.e VM, availability sets, disks, network interfaces, route tables, Network Security groups etc)
+
+==> after deploying the application, in order to connect to the AKS there we have to run some commands. And we can see all the details on the Kubernetes dashboard/

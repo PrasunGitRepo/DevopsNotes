@@ -1,0 +1,184 @@
+## difference between ansible and terraform
+
+orchestration/ provisioning is a process where we create the infrastructure for example :- virtual machines ,network components, databases, etc. ,whereas on the other hand configuration management is a process of automating version software component installation, OS configuration task, network and firewall configuration etc.
+
+Both terraform and Ansible are capable of performing both task. However, terraform offers a comprehensive solution to manage infrastructure. Terraform uses cloud provider API's to provision and deprovision infrastructure based on declared resources.
+
+Ansible on the other hand is also capable of provisioning the cloud infrastructure but it is not comprehensive enough. It is mainly geared towards configuration management. Configuration management is the process of keeping the applications and dependencies up to date this is where Ansible really shines as compared to terraform.
+
+Both the tools can perform both kinds of activities. However there are limitations when implementing configuration management using terraform and infrastructure automation using ansible they are not flexible enough when it comes to complex infrastructure management. 
+
+#######################################################################################################################################################################
+
+In Terraform we will be having five files
+
+1. main.tf file --> here we will mention the configuration of all resources, for example if we are creating a VM then we will add the configuration of the VM such as the D-series E-series etc.
+2. Variables.tf file --> here we will declare all the environment specific variables such as subscription ID , resource group name etc.
+3. terraform.tfvars file --> here we will define the values of the variables which we have defined in variables.tf file.
+4. Providers.tf file --> it will contain the provider name for example AzureRM in case of Microsoft Azure
+5. Backend.tf file --> here we will mention the storage account inside which we want to secure the terraformtf.state file
+
+#######################################################################################################################################################################
+Terraform tf state file has a variable named "actions" for each resource and it has values such as "create",  "delete" or "update".
+#######################################################################################################################################################################
+
+Terraform state file locking --> Suppose multiple developers are working on the same project and they are sharing the same file then to avoid concurrency we need to use the locking concept. For example developer A hits terraform apply to add some resources so during that particular time period it will not allow other developers to add any resources. dynamo_table = "table_name"
+
+provider "aws"{
+    regions = "us-east-2"
+}
+
+resource "aws_dynamodb_table" "dynamo-terraform-lock" {
+	name ="terraform-lock"
+	hash_key = "LockID"
+	read_capacity = 20
+	write_capacity = 20
+	
+	attribute{
+		name= "LockId"
+		type = "S"
+	}
+
+	tags{
+		name = "Terraform Lock Table"
+	}
+}
+#######################################################################################################################################################################
+## Install Terraform
+
+1. Linux --> download the terraform file from the official website and put it in usr/local/bin
+2. Windows --> From choco
+
+## create a user on Azure/AWS and give him administration access
+--> Install AWS CLI
+--> AWS COnfiguration
+--> Add the "Access key ID" & "Secret key ID"
+#######################################################################################################################################################################
+provider "aws" {
+  region = "us-east-2"
+  #   access_key = ""
+  #   secret_key = ""	
+}
+
+resource "aws_instance" "intro" {
+  ami                    = "ami-03657b56516ab7912"
+  instance_type          = "t2.micro"
+  availability_zone      = "us-east-2a"
+  key_name               = "dove-key"
+  vpc_security_group_ids = ["sg-0780815f55104be8a"]
+  tags = {
+    Name    = "Dove-Instance"
+    Project = "Dove"
+  }
+}
+#######################################################################################################################################################################
+--> first step will be to run the command terraform init, it will check the provider i.e. AWS and it will download the plugins for AWS in the current working directory
+-->check the syntax  --> terraform validate
+--> format the code --> terraform fmt
+-->  dry run --> terraform plan
+--> terraform apply
+--> terraform destroy
+
+## terraform.tfstate file will have all the information about the resources which are handled by the terraform and when we hit terraform apply it will compare this state with the remote state and if there are any differences it will apply the differences.
+
+Terraform logs information about the resource it has created in a state file. This enables terraform to know which resources are under its control and when to update and destroy them. The terraform state file by default is named as terraformtf.state and is held in the same directory where terraform is run. It is created after running terraform apply. The actual content of this file is a Json formatted mapping of the resources defined in the configuration and those that exist in your infrastructure when terraform is run it can then use this mapping to configure infrastructure to the port and make any adjustments as necessary.
+
+#######################################################################################################################################################################
+## Variables
+
+--> move secrets out of the file or if there are any values which changes as per the environment.
+
+1. Providers.tf file
+provider "aws" {
+  region = var.REGION
+}
+
+
+2. vars.tf
+variable REGION {
+  default = "us-east-2"
+}
+
+variable ZONE1 {
+  default = "us-east-2a"
+}
+
+variable AMIS {
+  type = map
+  default = {
+    us-east-2 = "ami-03657b56516ab7912"
+    us-east-1 = "ami-0947d2ba12ee1ff75"
+  }
+}
+
+3. instance.tf
+resource "aws_instance" "dove-inst" {
+  ami                    = var.AMIS[var.REGION]
+  instance_type          = "t2.micro"
+  availability_zone      = var.ZONE1
+  key_name               = "new-dove"
+  vpc_security_group_ids = ["sg-0780815f55104be8a"]
+  tags = {
+    Name    = "Dove-Instance"
+    Project = "Dove"
+  }
+}
+
+#######################################################################################################################################################################
+==> Output the attributes, copy the files on the VM, run a script/command on the VM
+
+resource "aws_key_pair" "dove-key" {
+  key_name   = "dovekey"
+  public_key = file("dovekey.pub")
+}
+
+resource "aws_instance" "dove-inst" {
+  ami                    = var.AMIS[var.REGION]
+  instance_type          = "t2.micro"
+  availability_zone      = var.ZONE1
+  key_name               = aws_key_pair.dove-key.key_name
+  vpc_security_group_ids = ["sg-0780815f55104be8a"]
+  tags = {
+    Name    = "Dove-Instance"
+    Project = "Dove"
+  }
+
+  provisioner "file" {
+    source      = "web.sh"
+    destination = "/tmp/web.sh"
+  }
+
+  provisioner "remote-exec" {
+
+    inline = [
+      "chmod +x /tmp/web.sh",
+      "sudo /tmp/web.sh"
+    ]
+  }
+
+  connection {
+    user        = var.USER
+    private_key = file("dovekey")
+    host        = self.public_ip
+  }
+}
+
+#######################################################################################################################################################################
+
+==> Backend
+
+Terraform.tf maintains the state of the infrastructure so this file should be in a remote location for example S3 bucket.
+
+Backend.tf
+
+terraform {
+  backend "s3" {
+    bucket = "terra-state-dove"
+    key    = "terraform/backend"
+    region = "us-east-2"
+  }
+}
+
+#######################################################################################################################################################################
+see exercise six files
+#######################################################################################################################################################################

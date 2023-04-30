@@ -1,0 +1,8 @@
+Get-Package -Provider chocolatey -Force
+#Install Software
+
+Install-Package adobereader, 7zip, anydesk, firefox, notepadplusplus, teamviewer, vlc -force
+
+#######################################################################################################################################################################
+
+Start-Process C:\Doc\WinRAR.exe -ArgumentList "/S /v/qn"

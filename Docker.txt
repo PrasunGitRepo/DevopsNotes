@@ -1,0 +1,120 @@
+--> What is docker?
+Docker is a platform for building , running and shipping applications. Using DOcker we can package our application with everything it needs that means dependencies and run it anywhere on any machine.
+
+--> difference between docker and a virtual machine
+the main difference between a VM and docker is that VM needs an operating system while the container uses host operating system therefore reduces cost of server and operating system licensing.
+
+--> Linux containers only run on Linux operating system while windows containers runs only on Windows operating system.
+
+--> docker hub is the default registry.
+
+--> when you execute docker run it will first run the script in entry point and then the command which is in the CMD. "Entrypoint" will have higher priority than CMD.
+
+#######################################################################################################################################################################
+## multi stage docker file##
+Multi stage builds are a method of organizing A dockerfile to minimize the size of the final container.
+Here we create multiple stages and we use multiple FROM statements to reference a specific image necessary for that stage. Rename each state using the "AS" keyword, so that we can use the results of one state into another state.
+#######################################################################################################################################################################
+
+--> docker commands
+
+1. List all the images on the local
+docker images
+
+2. List all containers
+docker ps -a
+
+3. Pulling a docker image
+docker pull nginx
+
+4. Running a docker image
+--> detached mode (i.e the image will always run in the background) { if you don't use -d then all the outputs you can see on the command line} {ctrl +c to kill}
+docker run --name myweb -p 7090:80 -d nginx
+
+5. Start or stop a container
+docker start "container name" or "id"
+docker stop "container name" or "id"
+
+6. Remove image
+docker rmi "image name" {Note : first container should be stopped after that remove container and after that remove image}
+
+7. See inside a container 
+#docker exec "container name" ls/
+
+8. Run a command in a container
+docker exec "container name" /bin/bash
+
+
+9. login into the container
+docker exec -it "container name" /bin/bash
+
+10. Metadata of the image in the json format
+docker inspect "image_name"
+
+11. Container logs
+docker logs "container name"
+
+12 Provide a value to a variable
+docker run -d -P -e MYSQL_ROOT_PASSWORD=mypass mysql
+
+#######################################################################################################################################################################
+
+--> docker volumes 
+
+1. Map the data to a directory 
+mkdir /home/ubuntu/vprodbdata
+
+docker run --name vprodb -d -e MYSQL_ROOT_PASSWORD=secretpass -p 3300:3306 -v /home/ubuntu/vprodbdata:/var/lib/mysql mysql  {/var/lib/mysql --> this weekend find my running docker inspect command under volumes}
+
+2. Using Volumes
+
+docker volume create mydbdata
+docker run --name vprodb -d -e MYSQL_ROOT_PASSWORD=secretpass -p 3300:3306 -v mydbdata:/var/lib/mysql mysql  {/var/lib/mysql --> this weekend find my running docker inspect command under volumes}
+
+#######################################################################################################################################################################
+
+Building images
+(Keywords)
+
+1. From --> base image
+.Net ==> {FROM mcr.microsoft.com/dotnet/aspnet:5.0-buster-slim}
+Node ==> {FROM node:15.14-slim}
+JRE ==> {FROM JRE}
+
+2. LABEL --> tags
+
+3. WORKDIR --> Sets the working directory
+
+4. RUN --> Executes commands (install something, create a directory etc) { an image can have multiple run commands}
+
+5. ADD --> copies new files directories or remote file URL into the file system of the container.
+
+6. COPY --> copy new files or directories into the file system of the container.
+
+7. ENV --> Enviroment variables
+
+8. CMD --> the CMD command is similar to run & can be used for executing a specific command. It is used to set a default command that gets executed once you run the docker container. in case of multiple CMD commands only the last one gets executed.
+
+9. Entrypoint --> it is similar to CMD but it will have higher priority, if both are mentioned together then we can mention command in entry point and argument to the command using CMD.
+
+10. VOLUME --> creates a mount point and marks it as holding externally mounted volumes from native or other containers.
+
+11. EXPOSE --> inform docker that the container listens on the specified network ports at runtime.
+
+--> COPY . . Means current working directory contents will be copied to container directory.
+
+https://www.udemy.com/course/decodingdevops/learn/lecture/31765664#overview --> 4:06 {Docker Volume must watch}
+
+https://github.com/devopshydclub/emartapp
+
+#######################################################################################################################################################################
+
+--> Docker Compose {We need to install explicitly}
+
+suppose if we have multiple dockerfiles in an application then it will get difficult to manage them all at once so in that scenario we will create and use docker compose.
+It is a YML file
+compose contains information about how to build the containers and deploy containers.
+First step would be to install docker compose.
+
+--> docker compose build
+--> docker compose up

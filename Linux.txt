@@ -1,0 +1,229 @@
+## Basic commands (CentOS)
+
+==> To login into a Linux VM --> ssh root@1234.454.675    (after this type the password)
+==> Reset the root password --> sudo passwd root
+==> create the SSH keys on the VM on which you want to clone the repo --> ssh-keygen.exe
+
+1. To view the contents of a directory --> ls   {ls-lt --> sorting files by timestamp &&  ls-ltr--> reverse sort by timestamp}
+2. To read a file --> cat
+3. To switch to root user --> sudo -i
+4. To go to the root directory --> cd /
+5. To see all the user executables command --> cd /bin
+6. To see all the root user executables command --> cd /sbin
+7.  to log out as root user--> exit
+8. To log in as a different user --> "username" ssh
+9. To create a file --> touch testfile.txt
+10. To create multiple files using touch at once --> touch testfile{1...10}txt
+11. Copy one file from one directory to another directory --> cp home/devops.txt home/prasun/devops.txt
+12. Copy one directory to another directory --> cp -r dev backupdir/
+13. In order to get more information on any command --> cp --help
+14. Move one directory to another directory --> mv dev backupdir/
+Note:- this mv command is also used to rename the file mv testfile1.txt testfile2.txt
+15. To delete a file --> rm devops.txt
+16. To delete a directory --> rm -r backupdir
+17. To delete everything from current directory --> rm -rf*
+18. Memory utilization --> free -m
+19. Hard disk partition utilization --> df -h
+20. Count the number of lines in a file --> wc -l
+21. Reboot the VM --> sudo reboot
+#######################################################################################################################################################################
+## install vim editor --> sudo yum install vim -y
+
+1. Create a new file using vim --> vim firrstfile.txt
+
+NOte:- there are three modes in vim 
+1. Command mode (press ESC)
+2.  insert mode (press i)
+3. Extended command mode (press : i'm neve change my name u)
+
+->  To save the file--> :w
+->  To quit --> :q
+->  To quit without saving your changes--> :q!
+->  Show line numnber --> :se nu
+->  copy a line --> yy         {If we want to copy 4 lines 4yy}
+->  paste --> p
+->  Delete or cut aline --> dd     {4dd}
+->  Undo --> uu
+->  Search a particular word -->  first go into command mode--> /network
+#######################################################################################################################################################################
+
+--> File types
+
+1. to check the file type of any file/directory --> file devopsdir
+
+Type ls -l for getting more info about the file/directory
+a. if it starts with "d" then it is a directory {dwxr-xr-r}
+b. if it starts with "-" then it is a file {-rw-------}
+c. if it starts with "c" then it is a charachter file {for example keyboard}
+d. if it starts with "b" then it is a block {i.e. harddisk}
+e. if it starts with "l" then it is a link{for ex- Symblink}
+
+2. create a soft link --> ln -s opt/de/ops/devops/command.txt cmds
+
+#######################################################################################################################################################################
+
+--> Filter
+
+1.  find a particular word using grep command--> grep -iR SELINUX /etc/*  {i-> it will ignore case sensitivity while searching & R-> to look inside files in subdirectories}
+
+2. Head( show first 10 lines)  && Tail ( show last 10 lines) commands
+Note: special feature F tail command (it is used for log files and it will show live logs) --> tail -f /var/logs/messages
+
+3. If the file is properly segregated into rows and columns and columns are separated by: then we can get any particular column using this command
+cut -d: -f1 /etc/password/    {where d is delimeter and in this file it is ":" & F is field number i.e. column number}
+        or
+awk -F':' 'print $1'
+
+4. Find & Replace
+
+a. Method 1 (using Vim)
+%s/coronavirus/covid19/g          [g means globally i.e. everywhere]
+
+b. Method 2 {using sed command} { advantage it will change in all files in a directory at once}
+sed -i 's/coronavirus/covid19/g' samplefile.txt
+
+#######################################################################################################################################################################
+
+--> Redirection & Piping
+
+1. We can redirect the content of a command to a file --> ls > /tmp/sysinfo/txt  or ls>>  /tmp/sysinfo/txt   {single > will overwrite & double will just append}
+
+2. This directory does not have anything (black hole) /dev/null
+Uses
+a. If you don't want to see the output of a command
+yum install vim-y > /dev/null
+b. delete the contents of a file
+cat dev/null > /tmp/sysinfo.txt
+
+3. Redirect output/error of any command to a file
+free -m &>> /tmp/error.log        {& will include both output & error}
+
+4. Piping 
+a. ls | wc-l
+b. ls| greph host
+c. tail -0 var/log/messages| greph -i Vagrant
+d. ls -l |tail
+
+4. Finding a file in a directory with a particular name --> find /etc -name host*
+#######################################################################################################################################################################
+
+--> Users & Groups
+
+1. In order to get the information about the user --> id "username"
+2. To get user information --> grep "Username" /etc/passwd
+3. To get group information --> grep "groupname" /etc/group
+4. Create a user --> useradd ansible
+5. Add user "ansible" in Group "Devops" --> usermod -aGdevops ansible
+6. Set/Reset the password --> passwd ansible {Set the password}
+7. Command to check who all have logged in the system along with the time --> last
+8. Current user --> whoami
+9. Delete a user "Jenkins" --> userdel -r jenkins
+10. Delete a group --> groupdel devops
+#######################################################################################################################################################################
+
+--> File Permissions
+
+r=>read
+w=>write
+x=>exxecute
+
+                      user group
+--> For -rw-------  1 root root 37 Dec 6 08:04 anaconda-ks.cfg
+
+- ==> File type
+rw- ==> User
+--- ==> group
+--- ==> other
+
+--> changing the ownership of a file
+chown -R ansible:devops /opt/devopsdir     {R== Recursively, ansible== user,  devops == group}
+by running this command the permission will become drwxr-xr-x
+
+--> changing the current permissions
+chmod 0-x opt/devopsdir            {o==other,  x==execute}
+chmod g+w opt/dir
+
+--> Make a file executable
+    chmod +x filename.sh
+--> Run it --> ./filename.sh
+
+--> Changing the current permissions (numeric method)
+first digit specifies user's permissions
+second digit specifies group's permissions
+third digit specifies other's permissions
+
+4(For read)
+2(For write)
+1(for execute)
+
+chmod 700 opt/dir
+
+#######################################################################################################################################################################
+
+only root user can execute sudo commands
+
+--> enable other user to run sudo commands
+1. visudo
+2. search root --> /root
+there will be this line
+root ALL=(ALL)   ALL
+add this line just below
+ansible ALL=(ALL)   ALL   or ansible ALL=(ALL)  NOPASSWD: ALL
+
+#######################################################################################################################################################################
+
+## PAckage management or software management
+
+the RPM package manager is a powerful package management system used by Red Hat Linux and its derivatives such as cent OS & Fedora.
+
+--> Install a software from internet
+1. On google chrome download link --> Right click --> copy link address
+2. curl "url" -o tree-0.1.rpm
+3. rpm -ivh tree-0.1.rpm
+
+--> Uninstall
+rpm -e tree-0.1.rpm
+
+--> To view all the installed software
+rpm -qa|grep tree
+
+--> to check the status of the software if it is installed or not
+sudo systemctl status jenkins
+-->> YUM## ==> when you install a Linux OS you will always have access to some repositories from where yum can download and install softwares.
+1. yum install httpd
+2. yum remove httpd
+
+#######################################################################################################################################################################
+==> Services
+
+1. To check the status --> systemctl status httpd
+2. To start/stop the service --> systemctl start/stop httpd
+3. To enable service at the boottime --> systemctl enable httpd
+#######################################################################################################################################################################
+==> Processes
+
+Task manager in Linux --> top or ps aux
+1.  Kill a process --> kill "Parent process id"         {kill -9 "Process id" -9 is forcefully}
+#######################################################################################################################################################################
+==> Archieving
+
+1. yum install zip unzip -y
+
+          Name(wish)       File to be archieved
+2. zip -r jenkins_0891.zip jenkins
+
+3. unzip jenkins_0891.zip
+
+#######################################################################################################################################################################
+==>Ubuntu Changes
+
+1.  adduser devops
+2. In Ubuntu by default vim is not the default editor in order to set it as default editor --> export EDITOR=vim
+
+--> install a software from the Internet
+1. On google chrome download link --> Right click --> copy link address
+2. curl "url" -o tree-0.1.deb
+3. dpkg -i tree-0.1.deb
+
+--> to list all the DPKG packages installed on the system --> dpkg-l
+--> In Ubuntu, we have apt in place of yum

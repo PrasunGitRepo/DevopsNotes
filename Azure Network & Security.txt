@@ -1,0 +1,111 @@
+### Azure virtual network ###
+
+--> All resources in a virtual network and communicate to the Internet that means outbound by default.
+--> For inbound we need to use a firewall.
+--> Resources can communicate securely via virtual network or virtual network service endpoints.
+
+#######################################################################################################################################################################
+
+### subnet ###
+we can further divide our vnet into multiple subnets
+types of subnet hello ah Cortana Saturday umm
+1. App server subnet ( virtual machine)
+2. Database subnet ( Microsoft SQL Server)
+3. Gateway subnet ( VPN gateway)
+4. Virtual appliance subnet ( firewall)
+
+#######################################################################################################################################################################
+
+### network security group ###
+
+a network security group contains security rules that allow or deny inbound/outbound network traffic to order from several Azure resources.
+
+=> default rules in a network security group
+
+Inbound
+1. Same resources in a vnet  --> allow
+2. Traffic from any of your load balancer  --> allow
+3. Rest all traffic  --> deny
+
+
+Outbound
+1. Same resources in a vnet --> allow
+2. Traffic to Internet --> allow
+3. Rest all traffic --> deny
+
+#######################################################################################################################################################################
+
+### Service endpoint or policy ###
+
+==> using service endpoint we can route traffic from Azure VM to storage account through Azure backbone ( add not through the Internet so it is more secure). Service endpoints are applied on subnet level.
+
+-> steps to create service endpoint -> go to subnet of VM -> under  " service endpoint" == Microsoft.Storage
+-> for storage account --> under "firewall and the networks" -> "add existing virtual network" and select the virtual network and the subnet of the VM (now only this vnet and subnet can access this storage account)
+
+==> Virtual network vnet service endpoint policies => allow you to filter virtual network traffic to Azure services, allowing only specific Azure service resources ,over service endpoints. Endpoint policies provide granular access control for virtual network traffic to Azure services.
+
+==>Create a service endpoint policy so that the VM can access only that one storage account -> From Azure portal create a "service endpoint policy" -> open "service endpoint policy" and under "Policy Definition" ("Service" = "Storage Account", "Scope" = "Single Account", select this subscription, resource group, and resource  = "Storage Account) and under "Associate subnet" select the Vnet and subnet of the VM
+
+#######################################################################################################################################################################
+
+### Rout TAbles ###
+
+suppose we have a web server VM and from web server if we reach app server the traffic should first reach to NVA( firewall) so for this purpose we can use user defined route.
+
+1. Create a route table
+2. Create route rules
+3. Associate it with vnet and subnet
+
+#######################################################################################################################################################################
+
+### load balancer ###
+
+==> configure inbound NAT rules to route RDP traffic
+
+STEP 1. -> "Inbound NAT rules" -> "Target VM" == Select the VM1 -> "Port" == 3341 & "Target Port ==3389
+STEP 2. -> "Inbound NAT rules" -> "Target VM" == Select the VM2 -> "Port" == 3342 & "Target Port ==3389
+STEP 3. -> reate an inbound rule to allow "any" traffic on port 3389 on both VMs.
+
+==> configure load balancer rule to distribute HTTPS traffic ==> see video
+
+==> outbound net rules for VM's behind a load balancer -> if the VM's are behind a load balancer then for outbound connections also the VM will use IP address of the load balancer.
+
+In order to change this
+Step 1 create a public IP address
+Step 2 LoadBalancer ==> Frontend IP configuration ==> "Add"
+Step 3 disable the default outbound SNAT for the load balancer by running the PowerShell script in Azure shell
+Step 4 add different and IP configuration which we created in Step 2 by running PowerShell script
+
+#######################################################################################################################################################################
+
+### Azure application gateway ### ==> it is also used for load balancing
+
+difference between Azure load balancer and Azure application gateway ==> as your load balancer is able to distribute the traffic based on source port, source IP ,destination port, destination IP. While Azure application gateway can route the traffic based on URL also.
+
+1. Create an Azure application gateway
+2. In the "Backend Pools" Add the virtual machines
+3. Configure "health probe"
+4. Click on "HTTP setting" and select the "health probe" created in Step 3
+
+Steps for URL path based routing using Azure application gateway (if URL path contains */images/* or */videos/*)
+1. Create an Azure application gateway.
+2. Create two Backend pools (one for VM1 named as image backend pool and one for VM names as video backend pool)
+3. Create a listener
+4. Under "Rule" create a path based rule mentioning the url and backend pools of the two conditions.
+#######################################################################################################################################################################
+
+##Peering##
+1. Vnet Peering => In order to peer two vnet, we use this.
+2. VPN Gateway (Point to Site Peering)=> 
+#######################################################################################################################################################################
+
+##Azure Network Security##
+
+DDOS Attack -> distributed denial of service attack attempts to exhaust an applications resource making it available to legitimate users 
+
+Azure firewall -> for changing simple firewall rules we can use NSG, for centrally managing all the policies related to firewall across all subscriptions we have to use Azure firewall .
+#######################################################################################################################################################################
+
+## remote access management ## --> how the users will login into virtual machine 
+
+1. Windows admin center==> it lets us manage windows based Azure IAAS machine 

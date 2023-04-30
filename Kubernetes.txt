@@ -1,0 +1,259 @@
+### Kubernetes architecture####
+
+kubectl is the tool to connect to the Kubernetes cluster.
+
+1. Master node : master node manages the worker nodes.
+a. Kube api - handles all the incoming request and enables communication between all other components.
+b. etcd - it stores all the information for example stores the current state of everything inside the cluster.
+c. Scheduler -  it will schedule the container on the right node (it will consider the factors such as availability of the resource, hardware/software requirement etc.)
+d. Controller manager - it is responsible for noticing and responding when nodes go down manages the authentication and authorization.
+
+2. Worker node : it is the one where the docker engine is running.
+a. kubelet - when scheduler decides that container is going to run on this worker node then this responsibility is assigned to Kubelet and Kubelet is going to fetch the image and run the container.
+b. Kube proxy - we can set network rules to allow or deny something.
+c. container runtime - it is used for running the containers
+
+#######################################################################################################################################################################
+
+## POD ##
+Pod is the basic unit of K8
+One application per pod.
+
+Defination file of POD
+apiVersion: v1
+kind: pod
+metadata:
+   name: vpro-app
+   labels:
+        app: vpro-app
+spec:
+   containers:
+        - name: httpd-containers
+          image: httpd
+          ports:
+             - name: httpd-containers
+               image: httpd
+               ports:
+                  -name : http-port
+                   containerPort: 80
+
+
+==> Kubectl create -f app secret.yaml
+==> kubectl get secret
+==> kubectl describe secret       {IN THE EVENT SECTION WE CAN SEE IF THERE IS SOMETHING WRONG WITH THE CONTAINER}
+
+==> kubectl get pod    (There we an check the status)
+==> kubectl get pod -o wide
+==> kubectl get pod "podname" -o yaml
+==> kubectl describe pod "podname"
+
+==> Troubleshooting
+1. pull back off --> it means incorrect image name is mentioned
+2. Crash loop back off ==> kubectl logs "podname" ( it will show the output of the process running in that command)
+
+#######################################################################################################################################################################
+
+##Services##
+
+PODS  are mortal i.e. they can  die easily so their IP is not static. So that's why we attach the service to a pod.
+-> it is similar to load balancer (expose our pods to users pods, communicating with each other)
+-> communication between pods or communication between users and pods happen via services.
+
+## Connecting services to a POD
+1. In Services
+Label selector: App-frontend
+Backend pod: 80 (port number of the container)
+
+2. In POD
+Label: App-frontend
+
+==> kubectl get svc
+==> kubectl describe svc
+
+There are three types of services
+
+1. Cluster IP ==> Cluster IP service is the default Kubernetes service. Kubernetes will assign an internal IP address to your service. This IP address is reachable only from inside the cluster and can only be accessed by other pods in the cluster. Therefore we use this type of service when we want to expose a  service to other pods within the same cluster.
+
+2. Node POrt ==> A Node port service is the most easiest way to get the external traffic directly to your service. Node port, as the name implies opens a specific port on all the nodes inside the cluster. So, any traffic that comes to this port is forwarded to the service. ( it is not used in production scenarios)
+
+We open a port on the node(VM) and any traffic sent to that port goes to the service and also we need to create an NSG inbound rule to allow traffic on that port
+Disadvantages:- 1. You can only expose one service per pod
+2.  We can only use ports in this range 30000 - 32767
+
+
+3. Load BAlancer -> A load balancer service is the standard way to expose a service to the Internet. This service type works when you are using a cloud provider to host your Kubernetes cluster. All the traffic on the port which you specify will be forwarded to the service. There is no filtering no routing etc. Therefore you can send almost any kind of traffic to it like HTTP, TCP, UDP, websocket GRP or whatever. By using load balancer the cloud service provider will automatically spin up a load balancer instance.
+
+#######################################################################################################################################################################
+
+## ReplicaSet ## --> it maintains replicas of the pod. since pod can die very easily so if it goes down then the users will not be able to access our application so that's why we create replica set.
+
+==> kubectl get rs
+
+1. In Replica set
+Label selector: App-frontend
+
+2. In POD
+Label: App-frontend
+
+#######################################################################################################################################################################
+
+##Deployment##
+
+A deployment provides declarative updates for pods and replica sets.
+Deployment creates replica set to manage number of pods.
+
+==> ROLLback --> kubectl rollout undo deployment/nginx-deployment --to-revision=2
+
+vim deployment.yaml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.14.2
+        ports:
+        - containerPort: 80
+
+kubectl apply -f deployment.yaml
+#######################################################################################################################################################################
+
+##Volumes##  --> suppose we have an application running inside a pod which is generating some log files. So if the pod dies and restarts those log files will also be gone. So in order to overcome this situation we can attach a volume to the parts it can be a directory on the node EBS on  AWS or a storage account on Azure etc/
+
+vim mysqlpod.yaml
+
+apiVersion: v1 
+kind: Pod
+metadata:
+  name: dbpod
+spec:
+  containers:
+  - image: mysql:5.7
+    name: mysql
+    volumeMounts:
+    - mountPath: /var/lib/mysql
+      name: dbvol
+  volumes:
+  - name: dbvol
+    hostPath:
+      # directory location on host
+      path: /data
+      # this field is optional
+      type: DirectoryOrCreate
+#######################################################################################################################################################################
+
+##ConfigMap## 
+
+It is used to store all the variables and configurations, and we can nject it in any pod.
+
+==> kubectl get cm
+==> kubectl get cm game-demo -o yaml
+#######################################################################################################################################################################
+
+##Secrets##
+
+It is used to store the sensitive information, and we can nject it in any pod.
+
+Encode any text --> echo -n "secret-pass"| base 64
+Decode any text --> echo -n "secret-pass"| base 64 --decode
+
+going inside the pod --> kubectl exec --stdin --tty "podname" --/bin/bash/
+
+#######################################################################################################################################################################
+
+##Ingress##
+
+=> Ingress is used for creating traffic routing rules, for-example we have a domain for our front end such as prasun-application.com and we have to route the external users to this domain so here we can create an ingress rule and attach that ingress controller to the service of the front end application.
+
+Note- Ingress is attached to service
+
+1. install ingress nginx controller ==> Run the command from the official website.
+
+It will create a seperate namespace and inside that namespace "nginx-controller" pod will be created where we will set routing rules and also a load balancing instance will be provisioned.
+
+2. Deployment
+
+3. Service
+
+4. Create DNS cname record for LB.
+
+5. Create ingress
+
+#######################################################################################################################################################################
+#######################################################################################################################################################################
+#######################################################################################################################################################################
+install these three plugins on Jenkins docker docker pipeline and pipeline utility create credentials for docker hub on Jenkins we will use that in pipeline as a code
+Before we start writing definition files for our pods we need to create a volume for our DB part so it can store the MySQL data into EBS volume
+
+Step1 Create an EBS volume
+#######################################################################################################################################################################
+create a secret definition file for storing passwords. ( encode the secrets using base 64)
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: app-secret
+type: Opaque
+data:
+  db-pass: dnByb2RicGFzcw== 
+  rmq-pass: Z3Vlc3Q=
+
+==> kubectl create -f app.secret.yaml
+==> kubectl get secret
+==> kubectl describe secret
+#######################################################################################################################################################################
+#######################################################################################################################################################################
+#######################################################################################################################################################################
+
+==> JEnkins PAAC and Helm charts for Kuberenetes
+
+##Install these three plugins on Jenkins-- docker, docker pipeline and pipeline utility. Create credentials for "Dockerhub" on Jenkins we will use that in pipeline as a code
+
+==> Helm is a package manager for definition files which we deploy on kubernetes.
+We needed to install helm on the server before using it/
+
+-> Helm create vprofilecharts
+-> cd vprofilecharts
+-> ls vprofilecharts    ==   Charts.yml      charts       templates       values.yml
+
+inside template we will copy all the definition files.
+
+-> Variablaise the defination files
+image : {{.Values.appimage}}
+
+-> Pass the value of this variable in "Values.yml"
+
+-> helm install --namespace test vprofile-stack helm/vprofilecharts --set appimage=nginx:9
+
+-> helm list
+
+stage('Kubernetes Deploy') {
+          agent {label 'KOPS'}
+            steps {
+              sh "helm upgrade --install --force vprofile-stack helm/vprofilecharts --set appimage=${registry}:V${BUILD_NUMBER} --namespace prod"
+            }
+        }
+    }
+
+
+}
+
+
+
+
+
+
+

@@ -1,0 +1,127 @@
+Build Pipelines
+
+Target machine should have -->
+1. .Net runtime in order to run .net application
+2. JRE runtime in order to run Java application
+
+#######################################################################################################################################################################
+
+--> publish code on local machine publish code on local machine 
+Right click on project --> publish
+#######################################################################################################################################################################
+when we create the pipeline using the yaml syntax then a file called azure-pipeline.yml will also be created and version control along with the code it will be added to the git repository with Azure repost the benefit of this is that it allows us to identify the changes within the pipeline which could break the deployment so that we can go to the previous version of pipeline to see what is the working version of the pipeline
+#######################################################################################################################################################################
+
+--> change the default branch in Azure repos
+Branches --> right click on branch -> Set as default branch
+#######################################################################################################################################################################
+
+--> create a build pipeline
+Pipeline --> "Create Pipeline" --> Where is your code "Azure repos" --> Select a repository "webapp" --> Configure your pipeline "ASP .NET Core"
+#######################################################################################################################################################################
+--> Component of a build pipeline
+
+1. trigger: 'main'
+
+whenever there is a change in the main branch of the code repository the pipeline will be triggered.
+
+2. Agent Pool 
+
+
+pool:
+  - vmImage: 'windows-2019'        {Microsoft hosted Agent}     
+    OR
+
+pool:
+  - name: Default
+
+we need a machine to build our code. The code will be copied from the repository to this machine and the code will build on this machine when the pipeline has finished running the Azure DevOps will destroy this machine. This machine should have all the softwares in place in order to build the code (we need to identify which all tools or softwares are required to build our code for example Ms. build tool etc.)
+
+#####################################################################################################################################################################
+
+--> Self Hosted Agents
+Advantages --
+1.  Persist the build
+2. Requirement to install custom softwares.
+
+Steps--
+1. Deploy a windows VM
+2. Install .Net , GIT on the VM which are required to run our application.
+3. Registering the self hosted agent 
+	a. Login into the VM --> goto ADO --> Click on "profile" --> "Personal access token" -->  select scope as "agent pools"
+	b. goto --> "Organization settings" --> "Agent pools" --> "New Agent" --> Follow the steps as per Windows or Linux machine (there will be some scripts) --> Use authorization as PAT
+
+--> Using self hosted agent in the pipeline
+-pool: 
+   name: Default
+
+--> Work Folder on our self hosted agent
+1->"s" Folder --> Source code from GIT
+1->"a" Folder --> Build
+#####################################################################################################################################################################
+
+-->MendBolt (White Source)
+
+-> We can integrate it with Azure devops build pipeline to automaticaly detect any sort of security vulnerabilities or licensing issues.
+-> For example : agar humare pass ek .net application hai toh usmein bahut saare external Nuget packages ko install kar sakte hai. Hum yeh nahi keh sakte ki unn external Nuget package ko develop karte time saare security best practices ko follow kiya gaya hai ya nahi.
+-> For Example 2 : Hum ye nahi keh sakte ki unn external Nuget packages ko use karne ke liye koi license kharidna padega ya nahi.
+
+--> Setting up MendBolt
+1. "Organization Settings" -> "Extensions" ->"Browse Marketplace" -> "Mendbolt ->Install
+2. Add the Mendbolt task in the build pipeline
+-> -task: WhiteSource@21
+     inputs:
+     cwd: '$(System.DefaultWorkingDirectory)'
+3. After the build pipeline is triggered, there one more tab will be created beside summary known as "Mend Bolt" showing "Risk report" & "security vulnerabilities".
+#####################################################################################################################################################################
+
+--> Build the code from Github Repository through Azure Devops
+
+1. {Using Github App} "Pipeline"-> "New Pipeline" -> "Where is your Code" -> "Github" -> "Approve and install azure pipeline on the Github" -> Enter the password of GIThub
+
+2. {Using Personal access token} 
+	a. Generate a PAT on GIthub
+	b. goto/azure devops -> "Organization Setting" ->"Service Connection" -> "New Service Connection" -> Select Github -> Select "PAT" as "authentiacation Method" 	   -> "Grant access to all pipelines"
+#####################################################################################################################################################################
+
+--> Pipeline Cache
+
+Pipeline caching can help reduce build time by allowing the outputs or downloaded dependencies from one run to be reused in later runs, thereby reducing or avoiding the cost to recreate or redownload the same files again.
+#####################################################################################################################################################################
+
+--> Jenkins
+
+a. Installation
+-> install open jdk
+-> install jenkins
+-> allow traffic onport 8080 
+-> Add an inbound port rule on the azure Vm to allow traffic on port 8080
+
+#Initial admin password can be found here -- cat /var/lib/jenkins/secrets/initialAdminPassword
+[Please Note]: Jenkins is a software which is used for continuos integration but you still need to install the tools on the Azure Vm to build the application (Ex: GIT,.net)
+
+sudo apt install git
+sudo apt-get install -y dotnet-sdk-6.0
+
+Provide permissions to these folders otherwise the build will fail
+1.  sudo chmod -R a+rwx /var/lib/jenkins
+2.  sudo chmod -R a+rwx /tmp/NuGetScractch
+
+b. Creating a build pipeline using code on GIThub
+
+1. Create a new Item -> Freestyle ptoject
+2. "Source code management" --> GIT 
+3. "Repository URL" -> goto to github repository and copy "HTTPS" under "clone"
+4 Under "Build" -> "Add build Step" ->  "Execute shell" (Since we have installed jenkins on a linux vm) -> Enter command "dotnet build *.sln"
+
+c. Creating a build pipeline using code on Azure repos
+
+1. Create a new Item -> Freestyle ptoject
+2. "Source code management" --> GIT 
+3. "Repository URL" -> goto to github repository and copy "HTTPS" under "clone" .Also click on "Generate GIT credentials" and paste the username & password on jenkins
+4 Under "Build" -> "Add build Step" ->  "Execute shell" (Since we have installed jenkins on a linux vm) -> Enter command "dotnet build *.sln"
+
+d. Whenever a code change occures on azure repos, it should trigger a build on jenkins
+
+1. ADO -> "Project Settings" -> "Service hook" -> "Create a new subscription" -> "Jenkins" -> "Trigger" == "Code Pushed" -> Select your "Repository" & "Branch" ->
+   Generate a token from Jenkins and add it on that page on ADO

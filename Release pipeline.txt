@@ -1,0 +1,191 @@
+==> App Service
+
+1. "Runtime Stack" - .Net6, .Net7, Java11, Java17 etc.
+2. "Operating system" - "Windows" or "Linux"
+3. Create an app service plan
+
+-> Manual publishing of application through visual studio
+1. On Visual Studio -> right click on solution file -> "Publish" -> "Azure" -> "App service" -> Visual Studio will then first build the application and then publish the application
+
+--> Release pipeline for .Net application on an azure app service
+
+1. "Releases" -> "New Pipeline" -> (Classic Version by default) -> "Select a template" == "Empty job" -> "Stage name" ==Deploy to test enviroment
+2. Under "Artifact" -> Click on "Add an artifact" -> "Source type" -> "Build" and select the project and source (build pipeline) and "Default Version" == "Latest"
+3. Under "Stages" there will be "Deploy to test ENV" and under that there will be "1 job" , "0 task" click on that.
+4. Click on "+" to add a new task -> "Azure Web App DEploy"
+5. Select your Azure subscription -> click on "Authorize" (it will ask us to login) {it will create a service connection on your subscription, service connection is used to authorize so that is your DevOps can work with that subscription} -> "App type" == "Web app on windows"
+
+### Note :- you can enable continuous deployment by enabling continuous deployment trigger which is present over artifact name.
+#######################################################################################################################################################################
+
+--> multiple stages in release pipeline
+
+1. Provision resources for each environment.
+2. In the release pipeline, "Add another stage-> deploy to UAT"
+#######################################################################################################################################################################
+ --> Virtual Machine
+
+1. Provision the virtual machine
+2. Networking -> Create an inbound security rule to allow traffic on port 80, 3389 because we have a web application running on this machine.
+3. "Server Manager" -> "Dashboard" ->  "Add roles and features" -> "install IIS"
+4. Also install all the required softwares for example .Net etc
+5. "Pipeline" -> deployment group add a deployment group register the Azure virtual machines on this deployment group by running the PowerShell script on the VM
+6. Go to the release pipeline -> Create a new stage -> Remove the default "Agent job" -> "Add deployment group job" (select the artifact and the deployment group which you just created)
+7. Add these tasks on the deployment group job --> 1. Manage IIS website  2. Deploy IIS website
+#######################################################################################################################################################################
+
+--> SQL Server
+
+-> Deploy the code on an Azure app service
+
+-> run a query to create or update the tables in a database
+1. Manually -> Azure SQL Server -> Query editor -> login in using Azure SQL Server credentials -> Type your query
+2. Release pipeline --- Add another task "Azure SQL Database Deployment" -> Select "Subscription",  "Azure SQL Server name", "user name", "password" -> "Deploy Type" == "inline SQL script" -> enter your script
+
+--> connection string automation through release pipeline
+1. Release pipeline -- Add another task "Azure app service settings" -> Select "App service name" ,"Resource group" -> there paste the connection string (available on Azure portal on Azure SQL)
+#######################################################################################################################################################################
+##Docker & Kubernetes
+
+1. Provision an azure Linux machine
+2. install docker on the Linux machine by running the commands mentioned on the official docker documentation.
+3. copy the source code into the Linux server by using win SCP tool
+4. create a docker file
+- from mcr.microsoft.com/dotnet/asp.net:6.0     {Use a base image}
+- WORKDIR /app
+- COPY ..
+- EXPOSE 80
+- ENTRYPOINT["dotnet","sqlapp.dll"]
+
+5. docker build -t sqlapp .
+6. Provision the "Container Registry" resource
+7. Install the Azure CLI on the Linux machine using commands mentioned in Microsoft documentation.
+8. Login to Azure container registry using this command --> sudo az acr login --name localregistry30030 --username prasun007 --password ********    {goto "access keys" --> enable admin
+9. Tag your image using this command --> sudo docker tag localregistry30030.azurecr.io/sqlapp
+10. Push the image to the Azure container registry --> sudo docker push localregistry30030.azurecr.io/sqlapp
+11. Provision an Azure container instance to check if the image is working
+- select your Azure container registry == "localregistry30030"
+- select image == "sqlapp"
+- select image tag == "latest"
+- Port == 80
+
+--> Using Azure pipelines
+1. Push the code to Azure repos
+2. Set up a build --> in "configure your pipeline" select "Docker-build and push an image to Azure container registry" -> then it will create a service connection on Azure container registry automatically
+
+
+
+# Docker
+# Build and push an image to Azure Container Registry
+# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
+
+trigger:
+- main
+
+resources:
+- repo: self
+
+variables:
+  # Container registry service connection established during pipeline creation
+  dockerRegistryServiceConnection: 'b3020420-c1f5-447c-acb1-0da44fc27f2c'
+  imageRepository: 'sqlappdocker'
+  containerRegistry: 'localregistry1000.azurecr.io'
+  dockerfilePath: '$(Build.SourcesDirectory)/sqlapp/Dockerfile'
+  tag: '$(Build.BuildId)'
+
+  # Agent VM image name
+  vmImageName: 'ubuntu-latest'
+
+stages:
+- stage: Build
+  displayName: Build and push stage
+  jobs:
+  - job: Build
+    displayName: Build
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+    - task: UseDotNet@2
+      inputs:
+        packageType: 'sdk'
+        version: '6.x'
+
+    - task: DotNetCoreCLI@2
+      displayName: Build
+      inputs:
+        command: build
+        projects: '**/*.csproj'
+        arguments: '--configuration $(buildConfiguration)'
+
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: publish
+        publishWebProjects: True
+        zipAfterPublish: false
+        arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+
+    - task: Docker@2
+      displayName: Build and push an image to container registry
+      inputs:
+        command: buildAndPush
+        buildContext: '$(Build.ArtifactStagingDirectory)/sqlapp'
+        repository: $(imageRepository)
+        dockerfile: $(dockerfilePath)
+        containerRegistry: $(dockerRegistryServiceConnection)
+        tags: |
+          $(tag)
+          latest
+--------------------------------------------------------------------------------------------------
+
+--> Deploy the image to azure container instance
+
+1. Go to release pipeline and create an Azure CLI task
+2. Select
+- subscription
+- script type == Batch
+- script location == innline script
+- inline script == az container create -g devops-grp --name appinstance20030 --cpu 1 --memory 1 --port 90 --ip-address Public --image localregistry30030.azurecr.io/sqlapp:latest --username prasun --password *******
+
+#######################################################################################################################################################################
+
+--> deployment to Azure Kubernetes services
+
+--> provision Azure Kubernetes cluster
+1. scale method -- "Auto" or "Manual"
+2. Node count --
+3. Network configuration -- "Kubenet"
+4. Container registry -- "Select your container registry"
+
+-> check in the deployment manifest file and service manifest file in the Azure repos.
+In deployment manifest file we will include the Azure container registry
+in service manifest file we will include the services for example load balancer
+
+###Method 1: Deploy through ADO yaml
+
+--> add this task in the build pipeline
+
+    - task: KubernetesManifest@0
+      inputs:
+        action: 'deploy'
+        kubernetesServiceConnection: 'kubernetes-connection'
+        manifests: | 
+           $(Build.SourcesDirectory)/sqlapp/Manifests/app.yml
+           $(Build.SourcesDirectory)/sqlapp/Manifests/service.yml
+
+
+
+###Method 2: Deploy through Classic pipeline
+
+-> add this task in the build pipeline
+
+    - task: PublishPipelineArtifact@1
+      inputs:
+        targetPath:'(Pipeline.Workspace)'
+        artifact: 'sourcefiles'
+        publishLocation:'' 
+           
+
+->create a new release pipeline and add the build from the build pipeline
+add this task in the release pipeline "Deploy to Kubernetes" (we will have two of these task one for app.yml and other for services.yml)
+1. Select the "service connection"
+2. select the manifest file from the build

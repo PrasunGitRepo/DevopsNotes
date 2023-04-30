@@ -1,0 +1,439 @@
+Controller machine : Controller machine is the machine on which we install the Ansible server.
+
+Inventory : An inventory is an initialization file that has details about the different servers that you are managing.
+
+Playbook : It is a code file written in yaml format a playbook basically contains the task that needs to be executed or automated.
+
+Task : Each task represents a single procedure that needs to be executed for example installing a library.
+
+Module : A module is a set of tasks that can be executed and sibal has hundreds of built-in modules but you can also create custom ones.
+
+Rolel : An Ansible role is a predefined way for organizing playbooks and other files in order to facilitate sharing and reusing portions of provisioning.
+
+Play: A task executed from start to finish or the execution of a playbook is called a play.
+
+Facts : Facts are global variables that store details about the system like network interfaces or operating system etc.
+
+Handlers : Handlers are used to trigger the status of a service such as restarting or stopping a service.
+
+######## In order two store to store the output of a task, we use "Register" ########
+######## In order to print the output of a task, we use "Debug" ########
+
+#######################################################################################################################################################################
+--> Inventory & Ping Module
+
+Default inventory file is at this location - /etc/ansible/hosts
+
+In inventory file, we will mention the server details and we can also create groups.
+
+### We will authenticate the login using private key (pem file), we will keep this pem file on the controller machine.###
+
+web01 ansible_host=172.31.23.137 
+web02 ansible_host=172.31.17.193 
+db01 ansible_host=172.31.19.79 
+
+[websrvgrp]
+web01
+web02
+
+[dbsrvgrp]
+db01
+
+[dc_ohio:children]
+websrvgrp
+dbsrvgrp
+
+[dc_ohio:vars]
+ansible_user=centos
+ansible_ssh_private_key_file=vprofile-key.pem
+#######################################################################################################################################################################
+1. Install something on the server using command line
+ansible -i inventory -m yum -a "name=httpd state=present" web 01-- become
+
+2. start and enable our service on the server using command line
+ansible -i inventory -m service -a "name=httpd state=started enabled=yes" web 01-- become
+
+3. Copy a file using command line
+ansible -i inventory -m cory -a "src=index.html dest=/var/www/htmlindex.html" web 01-- become
+
+#######################################################################################################################################################################
+## ansible Playbook ##
+1. It ends with .yaml
+2. To check if the syntax of the playbook is correct or not --> ansible-playbook -i inventory web_db.yaml --syntax-check
+3. Execute the playbook --> ansible-playbook -i inventory web_db.yaml
+4. Execute the playbook in dry run to check what may happen --> ansible-playbook -i inventory web_db.yaml -C
+5. To get the information about the modules --> go to the official documentation there we have a directory where they have explained in detail what modules we can use along with the syntax.
+6. In order to get more logs we need to increase the level of verbosity for troubleshooting ( upto 4 v) -->ansible-playbook -i inventory web_db.yaml -vv
+
+
+---
+- name: Setup WebServer
+  hosts: websrvgrp
+  become: yes
+  tasks:
+    - name: Install Apache httpd 
+      yum:
+         name: httpd
+         state: present
+    - name: Start & Enable HTTPD
+      service:
+        name: httpd
+        state: started
+        enabled: yes
+
+    - name: Copy index file
+      copy:
+        src: index.html
+        dest: /var/www/html/index.html
+        owner: root
+        group: root
+        mode: '0644'
+        backup: yes
+
+---
+- name: Setup DBserver
+  hosts: dbsrvgrp
+  become: yes
+  vars:
+    dbname: groups
+    dbuser: devops
+    dbpass: admin123
+  tasks:
+    - debug: 
+        var: dbname
+
+    - debug:
+        msg: "Value of dbuser is {{dbuser}}"
+
+    - name: Install MySQL server
+      yum:
+         name: mariadb-server
+         state: present
+         
+    - name: Install Python MySQL 
+      yum:
+         name: MySQL-python
+         state: present
+
+    - name: Start & Enable maridb service
+      service:
+         name: mariadb
+         state: started
+         enabled: yes
+
+    - name: Create a new database with name 'accounts'
+      mysql_db:
+        name: "{{dbname}}"
+        state: present
+
+    - name: Create database user with name 'admin' 
+      mysql_user:
+        name: "{{dbuser}}"
+        password: "{{dbpass}}"
+        priv: '*.*:ALL'
+        state: present
+#######################################################################################################################################################################
+##Ansible Configuration Settings --> in the configuration file there can be many settings configured for the host such as (remote port for SSH =22, forks =5, ssh timeout, log path etc)
+
+There will be a default config file in /etc/ansible/ansible.cfg
+
+Order of priority
+1. ANSIBLE_CONFIG (enviroment variable if set)
+2. ansible.cfg (in current directory)
+3. ~/.ansible.cfg (in home directory)
+4. /etc/ansible/ansible.cfg
+#######################################################################################################################################################################
+
+##Variables##
+
+We can have Variables in 4 different places
+
+1. Inside Playbook
+2. In inventory files
+	host_vars/hostname
+	group_vars/groupname
+	group_vars/all
+3. In command line (it has the highest priority) --> ansible-playbook -e USRNM=cliuser web_db.yaml
+4. We can store in roles
+5. Ansible also has its own variables known as fact variables (for example:- ansible_os_family, ansible_processor_cores)
+
+######## In order two store to store the output of a task, we use "Register" ########
+######## In order to print the output of a task, we use "Debug" ########
+
+
+(Exercise 8)
+- name: Understanding precedence of variables
+  hosts: all
+  become: yes
+  gather_facts: False
+  vars:
+    USRNM: playuser
+    COMM: variable from playbook
+  tasks:
+    - name: create a user
+      user:
+        name: "{{USRNM}}"
+        comment: "{{COMM}}"
+      register: USROUT
+
+    - debug:
+        var: USROUT.name
+
+    - debug:
+        var: USROUT.comment
+
+#######################################################################################################################################################################
+
+##Facts Variables --> every time we run the playbook, "gathering facts" task is executed for all the host that we have defined in the playbook. It generates a lot of information about the host it uses a module name as "Setup'.
+
+1. We can run it via command line as well --> ansible -m setup web01
+
+2. Print fact Variables
+
+
+---
+- name: Learning fact variables
+  hosts: all
+  tasks:
+    - name: Print OS names
+      debug:
+        var: ansible_distribution
+
+    - name: Print Memory details
+      debug:
+        var: ansible_memory_mb
+
+    - name: Print Real Memory details
+      debug:
+        var: ansible_memory_mb.real.free
+
+    - name: Print Processor name
+      debug:
+        var: ansible_processor[2]
+#######################################################################################################################################################################
+
+##Decision making using when && loop
+
+(Exercise 10)
+
+---
+- name: Provisioning Server 
+  hosts: all
+  become: yes
+  tasks:
+    - name: Install NTP on Centos 
+      yum:
+        name: "{{item}}"
+        state: present
+      when: ansible_distribution == "CentOS"
+      loop:
+        - ntp
+        - wget
+        - git
+        - zip
+        - unzip
+
+    - name: Install NTP on Ubuntu
+      apt:
+         name: "{{item}}"
+         state: present
+         update_cache: yes
+      when: ansible_distribution == "Ubuntu"
+      loop:
+        - ntp
+        - wget
+        - git
+        - zip
+        - unzip
+
+    - name: Start & enable NTP on Redhat
+      service:
+        name: ntpd
+        state: started
+        enabled: yes
+      when: ansible_os_family == "RedHat"
+
+    - name: Start & enable NTP on Debian
+      service:
+        name: ntp
+        state: started
+        enabled: yes
+      when: ansible_os_family == "Debian"
+
+    - name: Add group
+      group:
+         name: devops
+         state: present
+
+    - name: Add users
+      user:
+          name: "{{item}}"
+          state: present
+          groups: devops
+      loop: "{{usernames}}"
+
+#######################################################################################################################################################################
+## File, Copy, Template & Handlers
+
+##Ansible Template does two things
+
+1. Replace the jinja2 Interpolation syntax variables present in the template file with actual values i.e support the use of variables, loops and conditional expressions.
+
+2. copy (scp) file to the remote server
+
+## Handlers --> if anything you want to trigger whenever your task is changed we can use handlers for that for example restarting a service (handlers will get executed only at the end of the playbook after executing all the tasks)
+
+Exercise 12
+
+---
+- name: Provisioning Server 
+  hosts: all
+  become: yes
+  tasks:
+    - name: Install NTP on Centos 
+      yum:
+        name: "{{item}}"
+        state: present
+      when: ansible_distribution == "CentOS"
+      loop:
+        - ntp
+        - wget
+        - git
+        - zip
+        - unzip
+
+    - name: Install NTP on Ubuntu
+      apt:
+         name: "{{item}}"
+         state: present
+         update_cache: yes
+      when: ansible_distribution == "Ubuntu"
+      loop:
+        - ntp
+        - wget
+        - git
+        - zip
+        - unzip
+
+    - name: Start & enable NTP on Redhat
+      service:
+        name: ntpd
+        state: started
+        enabled: yes
+      when: ansible_os_family == "RedHat"
+
+    - name: Start & enable NTP on Debian
+      service:
+        name: ntp
+        state: started
+        enabled: yes
+      when: ansible_os_family == "Debian"
+
+    - name: Add group
+      group:
+         name: devops
+         state: present
+
+    - name: Add users
+      user:
+          name: "{{item}}"
+          state: present
+          groups: devops
+      loop: "{{usernames}}"
+
+    - name: Banner file /etc/motd
+      copy:
+        content: "This {{ansible_distribution}} is Managed by Ansible.\n"
+        dest: /etc/motd
+
+    - name: Deploy NTP conf file for RedHat
+      template:
+         src: templates/ntp_redhat.conf.j2
+         dest: /etc/ntp.conf
+      when: ansible_os_family == "RedHat"
+      notify:
+        - Restart NTP on Redhat
+
+    - name: Deploy NTP conf file for Debian
+      template:
+         src: templates/ntp_debian.conf.j2
+         dest: /etc/ntp.conf
+      when: ansible_os_family == "Debian"
+      notify:
+        - Restart NTP on Debian
+
+    - name: Dir for dev data
+      file:
+        path: /opt/devdata
+        state: directory
+        mode: 0775
+
+  handlers:  
+    - name: Restart NTP on Redhat
+      service:
+        name: ntpd
+        state: restarted
+        enabled: yes
+      when: ansible_os_family == "RedHat"
+
+    - name: Restart NTP on Debian
+      service:
+         name: ntp
+         state: restarted
+         enabled: yes
+      when: ansible_os_family == "Debian"
+
+######################################################################################################################################################################### Ansible Roles is to simplify the complex playbook contents. Here we are distributing the playbook contents into different directories. The main benefit is that it is easy to handle.
+
+--> mkdir roles
+--> cd roles
+--> ansible-galaxy init post-install                        {post-install is the role name}
+
+##Tree command
+1. installation => sudo apt install tree -y
+2. Running the tree cammand => tree exercise14
+
+##Converting playbook into roles
+Step1. => copy variables from group_vars/all && provisioning.yaml to roles/post-install/defaults/main.yml
+Step2. => copy all tasks from playbook to roles/post-install/tasks/main.yml
+Step3. => copy all handlers from playbook to roles/post-install/handlers/main.yml
+Step4. => move all the templates over here --> mv templates/* roles/post-install/templates/
+Step5. => move all the files over here --> mv files/* roles/post-install/files/
+Step6. => Add this line in the playbook & remove everything else.
+
+Exercise 15
+
+---
+- name: Provisioning Server 
+  hosts: all
+  become: yes
+  roles:
+    - post-install
+
+Step7. -> Update path in roles/post-install/tasks/main.yml
+
+for example:-
+src: files/dev.txt
+src: dev.txt
+
+
+#######################################################################################################################################################################
+Ansible Galaxy --> It is a community repository for ansible which have lots of predefined roles which we can reuse
+
+Step 1. -> Download and install the role --> ansible-galaxy install "role name"
+Step 2. -> Add this in PLaybook
+
+Exercise 16
+
+---
+- name: Provisioning Server 
+  hosts: all
+  become: yes
+  roles:
+    - role: geerlingguy.java
+    - role: post-install
+      vars:
+        ntp0: 0.europe.pool.ntp.org
+        ntp1: 1.europe.pool.ntp.org
+        ntp2: 2.europe.pool.ntp.org
+        ntp3: 3.europe.pool.ntp.org

@@ -1,0 +1,89 @@
+GIT install --> from Internet
+#######################################################################################################################################################################
+
+1. git init
+
+2. git config --global user.name "Prasun Gupta"
+   git config --global user.email "prasun07gupta@gmail.com"
+
+3. Adding the files from the working area to the staging area ( our local machine where we have pulled the code) --> git ad .
+
+Working Area --> In working area, files are not handled by the GIT. They are kind of just in your local directory they can also be called untracked files.
+Staging Area --> files are going to be a part of your next commit
+
+4. Removing the files from staging area --> git rm --cached<File name>
+
+5. Move the files from staging area to git repository --> get commit -m "some message"
+
+6. Moving back to a previous commit -->
+	a. get the commit ID:- git log --all
+	b. Verify the differences in file:- git diff 46583838..1726368
+	c. ROllback :- git reset --hard 1726368
+
+7. Create a new branch --> git checkout -b <Brach name>
+
+8. Merge feature branch into main branch
+	a. git checkout <main>
+	b. git merge <Feature>
+	manually from GIThub --> a.  create a pull request     b. Admin will approve the merge request
+
+9. Publish files from local repository to GitHub repository
+
+	a. create a new repository on github
+	b. git remote add origin <GitHub link>         { then it will authenticate} 
+	c. git push -u origin main                  or git push -u origin --all
+#######################################################################################################################################################################
+
+## publishing code from Visual Studio 
+1. create an organization
+2. go to Visual Studio code --> git --> create git repository 
+
+## committing code from Visual Studio to GitHub 
+"View" menu --> GIT changes --> commit and Push
+
+### Two users using the same code 
+1. Organization --> people --> invite user --> send invite
+2. Clone the code for the 2nd user --> Open Visual studio --> Clone a repository --> Github --> Login as the 2nd user --> the organization will be available there.
+#######################################################################################################################################################################
+
+Fast forward merge --> changes made in only one branch and not in the other branch, then git will follow Fast forward merge.
+ORT Merge --> change is made in both branches then git will follow ORT strategy 
+squash merge  --> git merge --squash Feature {Changes made in both branches}
+**** a simple way to think about this is that squash merge gives you just the file changes and the regular Marge gives you the file changes and the commit history**** 
+
+#######################################################################################################################################################################
+--> adding branch protection
+
+1. pull request is required before merging even on the main branch.
+-->create a new branch and start a pull request
+#######################################################################################################################################################################
+--> importing GitHub repos into Azure repos
+
+1. In Azure repos --> Import a repository
+2. Copy HTTPS url from GITHUB
+3. Generate PAT from GitHub and use this to authorize in Azure repository.
+
+#######################################################################################################################################################################
+--> GIT ignore file
+
+if there are some files in our code base which we don't want in the version control we can add them in the get ignore file {For ex- dll files}
+
+#######################################################################################################################################################################
+--> integrating Microsoft Teams and Azure repos
+1. create a teams channel
+2. Apps --> Azure repos --> add into team channel --> set up a bot
+3. Login --> Azure repos sign in
+4. Subscribe --> Azure repos subscribe <repository link>
+
+#######################################################################################################################################################################
+--> GIT cherrypick
+
+using cherry pick any particular comment from a branch can be copied to any another branch.
+
+git cherry-pick <commit-id>
+
+
+
+
+
+

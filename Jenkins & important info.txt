@@ -1,0 +1,251 @@
+--> Service Connection
+
+
+-> "Project Settings" --> "Service connection" --> "New Service Connection" --> "Kubernetes" --> Select your azure subscription --> Authenticate using your credentials--> Select your cluster --> "Grant access on all pipelines"
+
+######################################################################################################################################################################
+--> Load Balancer
+
+-> Add the VMs (only private IPs can be added) in the backend pool (pool1 & pool2 etc)
+-> Add a "health probe" to check if the VMs are up & running or not
+1. Protocol == TCP
+2. POrt == 80
+3. Interval == 5 second
+4. Used by == Not used
+->Add a load balancing rule 
+1. Frontend IP address == IP address of load balancer    {If any traffic is coming on the frontend IP address of the load balancer then divert it to VM1}
+2. Backend Pool == pool1
+######################################################################################################################################################################
+
+Using variable group in a Classic Pipeline.
+
+-> goto "Release pipeline" -> "Variable" -> "Link VAriable group"
+######################################################################################################################################################################
+
+--> Azure Key Vault
+-> Click on "Secrets" -> Create a secret ->
+1. Name == dbpassword
+2. Value == Azure@123
+
+-> go to your yml pipeline and add this task to fetch secrets from key vault
+
+
+-> Also we need to grant access to the service principle which is defined in the service connection to "GET" and "LIST" secrets from Key vault through "Access Policies" --> "Add access policies" --> "GET" & "List" --> Select the service principle
+
+--> Use the Azure Key Vault Secrets through Variable group in ADO
+
+-> Create a variable group -> "Link secrets from Azure Key Vault as variables"
+1. Subscription
+2. Key vault name
+3. Select the secrets from Key vault which you want to use
+######################################################################################################################################################################
+
+--> Maven -- It is a build tool for Java applications which can be used to compile, integrate unit tests & package the code
+
+->A Build Lifecycle of Maven have 7 Phases which are
+
+1. validate - validate the project is correct and all necessary information is available
+2. compile - compile the source code of the project
+3. test - test the compiled source code using a suitable unit testing framework. These tests should not require the code be packaged or deployed
+4. package - take the compiled code and package it in its distributable format, such as a JAR.
+5. verify - run any checks on results of integration tests to ensure quality criteria are met
+6. install - install the package into the local repository, for use as a dependency in other projects locally
+7. deploy - done in the build environment, copies the final package to the remote repository for sharing with other developers and projects.
+
+
+-> There will be a pom.xml file
+Information like what will be the packaging method (.war, .zip etc), version, what are the dependencies required will be mentioned in the pom.xml
+
+-> Steps to build an application using Maven on a VM
+1. sudo apt install git -y
+2. clone the source code on the vm
+   git clone "HTTPS"
+3. sudo apt install openjdk-8-jdk -y
+4. sudo apt install maven -y
+5. mvn test  {after running this command a "target" directory will be created and it will contain the test reports}
+6. mvn install {after running this command the artifact will be created inside the "target" directory which can be deployed further}
+   mvn clean install
+
+######################################################################################################################################################################
+
+--> Jenkins
+
+a. Installation
+-> install open jdk
+-> install jenkins
+-> allow traffic onport 8080 
+-> Add an inbound port rule on the azure Vm to allow traffic on port 8080
+
+--> Jenkins
+
+#Select Plugins to install
+
+1. Build tools -> Gradle , node.js
+
+# Install openjdk8 and Maven into Jenkins
+1. Click on "Manage Jenkins" --> "Global tools configuration" --> install JDK, MAVEN< GIT etc from there {it will install these tools during pipeline run}
+
+#. Creating a build pipeline using code on GIThub
+
+1. Create a new Item -> Freestyle ptoject
+2. "Source code management" --> GIT 
+3. "Repository URL" -> goto to github repository and copy "HTTPS" under "clone"
+4 Under "Build" -> "Add build Step" ->  "Invoke top level Maven target" -> select Maven version
+5. In order to make sure the artifact is saved --> Click on "Configure" --> scroll to the bottom --> "Add build step"--> "Execute shell" --> enter this command
+{Inside "Worksapce" there weill be a "target" directory where the artifact wll be stored}
+mkdir -p versions
+copy target/vprofile-v2.war versions/vprofile-V$BUILD_ID.war
+
+OR We can use BUILD with PARAMETER as well for this purpose by
+
+Click on "configure" -> "This project is parameterized" -> "Add Parameter" ->"String Parameter" -> "NAME" == VERSION
+
+mkdir -p versions
+copy target/vprofile-v2.war versions/vprofile-V$VERSION.war
+
+
+# Installing plugins into Jenkins
+
+--> "Manage Jenkins" -> "Manage Plugins" -> "available" -> search the plugin , for example "ZENtimestamp"-> "install without restart"
+
+noW IN ORDER TO VERSION the artifact using this zentimestamp, go to "configure" -> Now you will get this "CHANGE date pattern for the "BUILD_TIMESTAMP"" variable -> Date time pattern =="yy-mm-dd:HHmm"
+
+copy target/artifact.war versions/artifact_$BUILD_TIMESTAMP.war
+######################################################################################################################################################################
+## Ports
+
+Jenkins --> 8080
+Nexus --> 8081
+Sonarqube --> 80 & 9000
+
+mkdir -p versions
+
+######################################################################################################################################################################
+
+--> Integrating Jenkins, Sonarqube & Nexus
+
+1. Jenkins setup, sonarqube setup, Nexus setup using the bash scripts provided by the client
+2. Create security groups for port 8080, 80, 9000, 8081
+3. Install Plugins --> Nexus, Sonarqube, Git, Pipeline Maven integration plugin, build timestamp, pipeline utilty steps
+
+######################################################################################################################################################################
+
+--> Pipeline as a code using Jenkins File
+
+######################################################################################################################################################################
+
+--> COde Analysis (Through Checkstyle & Sonarqube)
+Here we will scan the code using SonarQube scanner and upload the results on sonarQube server through pipeline, Also in the build history of jenkins pipeline we can see there if the quality gates are passed or not (If we dont create any quality gate then by default also there will be some quality gates)
+
+1. Best Practise
+2. Vulnerabilities, Bugs etc in code
+3. Functional error before deployment
+
+--> Steps to integrate Jenkins & Sonarqube
+1. Install sonarqube plugin --> "Manage jenkins" --> "Manage Plugins" --> "available" --> search the plugin --> install without restart
+2. Install Sonarqube scanner tool into the jenkins instance --> "Manage Jenkins" --> "Global tool configuration"
+3. "Manage Jenkins" --> "COnfigure System" --> "Add SOnarqube"
+-> "Name" == Sonar
+-> "Server URL" == Server ip of VM where SOnarqube is installed 
+-> Authenticate using PAT generated on SOnarqube
+
+
+--> Step to set quality gates
+1. Open SonarQube --> "Quality gate" --> "Create" --> "Add condition" --> Select the metric, for example "bugs", "Vulnerabilities"--> enter the threshold
+2. Link the Quality gate to project --> goto "HOme page of SonarQube" --> "Project Settings" --> "Quality gates" --> Select the quality gate which you have created in the above step
+3. Create a webhook -->goto "HOme page of SonarQube" --> "Project Settings" --> "Webhook"--> give any name & "URL" == "JenkinsURL:8080/sonarqube-webhook" 
+
+######################################################################################################################################################################
+
+--> Nexus
+
+1. goto Nexus homepage --> "Create Repository" and choose "Maven-hosted" from the drop down --> give repository a name.
+
+--> Integrating Jenkins with NExus (Create a credentials for Nexus & will use these credentials in the PAAC)
+1. "Manage Jenkins" --> "Manage Credentials" --> Click on "Jenkins" --> "Global credentials"--> "Add credentials" --> Give a name for this credential and enter the username & password of NExus
+
+######################################################################################################################################################################
+
+--> Notifications from Jenkins
+
+Through slack we can send notifications to email ids as well as we can see the status of each build run on slack.
+
+1. color  2. Build id  3. Build status  4. build url
+
+1. Create an account on slack --> add the email addresses
+2. Add "Jenkins CI" app on slack. There you will get a token.
+3. Install the slack plugin on Jenkins.
+4. "Manage Jenkins" --> "COnfigure System" --> "Add Slack" {Here you will need to authenticate and you can do this via the token generated above}
+
+######################################################################################################################################################################
+
+--> Build Triggers in Jenkins
+
+We can do this by using a webhook
+
+1. Go to Github --> Repository settings --> "Webhook" --> 'Add a webhook" --> "payload-URL" == http://18.221.451:8080/github-webhook --> "Which event would you like to trigger?" == "push event
+
+
+2. Doing it via Jenkins using Poll SCM
+"configure" -> "Build trigger" -> "Poll SCM" -> "Schedule" == *****
+
+######################################################################################################################################################################
+
+--> Authenticate github repository in jenkins using ssh
+
+for this we need to store the ssh keys in the github account
+
+1. Create the ssh keys on the vm on which you want to clone the repo
+-> ssh-keygen.exe 
+Afetr running this command you will get the public key and the private key inside the home directory
+
+2. Goto Github --> "Account settings" --> "SSH & GPG keys" --> "New SSH key" --> GIve any title and paste the public key here
+
+3. git clne "SSH"
+
+4. goto Jenkins--> "create job" --> "pipeline" --> "pipeline script from SCM"
+-> paste here the SSH URL from github repository
+-> "kind" == "SSH URL with private key"
+-> "Useername" == "Github account"
+-> add the private key here
+
+######################################################################################################################################################################
+
+--> Authentication & Authorization
+
+1. In Jenkins, intall this plugin "Role-based Authorization strategy"
+2. "Manage Jenkins" -> Now under security we will be able to see another option "Configure Global Security" -> Click on "role-based strategy" and save
+3. "Manage Jenkins" -> "Manage & Assign ROles" and from there we can manage roles and privileges on global level, job level etc (view, build, delete etc)
+
+######################################################################################################################################################################
+
+--> Jenkins Master slave concept 
+-> YOu need to run jobs from some other machines(slave machines)
+--> Use Case 
+1. Load distribution (If there are multiple projects of an organization)
+2. Cross platform builds (you are running jenkins on a linux machine and you need to build a windows based package {as we need tools like ms build})
+3. Using this we can add any VM as a node on jenkins and run any script or command on that VM
+
+
+--> Steps 
+1. Add a user on the slave linux machine, create a folder for jenkins and provide the user permissions on this
+adduser prasun
+mkdir /opt/jenkins-slave
+sudo apt install open-jdk-8
+chown prasun.prasun /opt/jenkins-slave -R
+
+Create an inbound rule on VM so that Jenkins server can access it on port 22. 
+
+2. "Manage Jenkins" --> "Manage nodes & clouds" --> "New node"
+name == "silver-node"
+# of executions == 5
+Remote root directory == /opt/jenkins-slave
+Label == "SILVER"
+Usage == "Use this node as much as possible" {the job may or maynot run on the slave node} or   "Only build jobs with label expression matching this job" {The job will definately run on the silver node} ("configure" --> "Restrict where this project can be run" == "Label" i.e. SILVER) 
+Launch method == Launch agent via SSH
+	host == "private ip of node"      {create inbound rule on node to allow jenkins server to connect on port 22}
+	"kind" == "SSH URL with private key"
+	"Useername" == "Github account"
+	add the private key here
+
+"SAVE"
