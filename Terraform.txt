@@ -178,7 +178,10 @@ terraform {
     region = "us-east-2"
   }
 }
+https://docs.google.com/document/d/1SEnAU-VR4quERQyk3HIL671mfVAQZ-hCTxBr5g3Bc44?eops=0&usp=drive_fs
 
+#########################################################################################################################################################################
+terraform refresh checks your actual cloud resources and updates your state file to match reality. It ensures Terraform knows about any manual changes made outside of its code.
 #######################################################################################################################################################################
 see exercise six files
 #######################################################################################################################################################################
