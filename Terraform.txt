@@ -182,6 +182,15 @@ https://docs.google.com/document/d/1SEnAU-VR4quERQyk3HIL671mfVAQZ-hCTxBr5g3Bc44?
 
 #########################################################################################################################################################################
 terraform refresh checks your actual cloud resources and updates your state file to match reality. It ensures Terraform knows about any manual changes made outside of its code.
+
+terraform show
+This command reads your state file and displays it in a clear, easy-to-read format. It is the best way to see the current settings and IDs of the resources you have deployed.
+
+terraform providers
+This lists the plugins (like AWS or Google Cloud) that Terraform is using to talk to your cloud accounts. It helps you track which versions of these tools are installed and required for your project.
+
+terraform destroy
+This is the "delete" command that removes all the infrastructure managed by your code. It always shows you a list of what will be deleted and asks for your permission before it starts.
 #######################################################################################################################################################################
 see exercise six files
 #######################################################################################################################################################################
