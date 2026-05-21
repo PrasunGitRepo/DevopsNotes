@@ -3,15 +3,16 @@
 kubectl is the tool to connect to the Kubernetes cluster.
 
 1. Master node : master node manages the worker nodes.
-a. Kube api - handles all the incoming request and enables communication between all other components.
-b. etcd - it stores all the information for example stores the current state of everything inside the cluster.
-c. Scheduler -  it will schedule the container on the right node (it will consider the factors such as availability of the resource, hardware/software requirement etc.)
-d. Controller manager - it is responsible for noticing and responding when nodes go down manages the authentication and authorization.
+a. Kube api - The Kubernetes API server is the entry point of the cluster. It handles all incoming requests from users and cluster components. It is also responsible for authentication and authorization of requests.
+b. etcd - etcd is the brain of the cluster. It stores data and information about all the cluster components. It stores data in a key-value format.
+c. Scheduler -  The Kubernetes Scheduler decides on which node a pod should run by considering factors such as available resources on the nodes, resource requirements, policies, taints/tolerations, and affinity rules.The scheduler only selects the appropriate node; it does not actually start the containers. The kubelet on the selected node is responsible for creating and running the containers.
+d. Controller manager - The Kubernetes Controller Manager continuously monitors the state of cluster objects such as pods and nodes. If the current state does not match the desired state, it takes actions to bring the cluster back to the desired state.
+
 
 2. Worker node : it is the one where the docker engine is running.
-a. kubelet - when scheduler decides that container is going to run on this worker node then this responsibility is assigned to Kubelet and Kubelet is going to fetch the image and run the container.
-b. Kube proxy - we can set network rules to allow or deny something.
-c. container runtime - it is used for running the containers
+a. kubelet - when scheduler decides that pod is going to run on this worker node then this responsibility is assigned to Kubelet and Kubelet is going to fetch the image and run the pod.
+b. Kube proxy - kube-proxy manages network rules on worker nodes and enables communication between services and pods. It handles traffic routing and load balancing for Kubernetes Services.
+c. container runtime - The containerd or other container runtimes are responsible for running containers on the worker node.
 
 #######################################################################################################################################################################
 
