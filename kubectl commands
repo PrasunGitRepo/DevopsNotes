@@ -2,3 +2,5 @@ Create a pod =>  Kubectl run nginx --image=nginx
 Create a  pod via yaml => kubectl create -f pod.defination.yaml
 Create a yaml from declerative => kubectl run redis --image=redis123 --dry-run=client -o yaml >tt.yaml
 Edit a pod => kubectl edit pod redis
+Get properties of yaml => kubectl explain replicaset
+k scale rs new-replica-set --replicas=2 or k edit rs new-replica-set
