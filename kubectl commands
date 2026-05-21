@@ -1,2 +1,2 @@
-Create a pod =>  Kubectl create pod nginx --image=nginx
+Create a pod =>  Kubectl run nginx --image=nginx
 Create a  pod via yaml => kubectl create -f pod.defination.yaml
