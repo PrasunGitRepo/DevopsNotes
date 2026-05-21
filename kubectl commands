@@ -5,3 +5,4 @@ Edit a pod => kubectl edit pod redis
 Get properties of yaml => kubectl explain replicaset
 Scale a replica set => k scale rs new-replica-set --replicas=2 or k edit rs new-replica-set
 Create a deployment and output it into yaml =>  kubectl create deployment --image=nginx nginx --replicas=4 --dry-run=client -o yaml > nginx-deployment.yaml
+Get pods from a specific namespace => k get pods -n research
