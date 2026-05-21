@@ -7,3 +7,4 @@ Scale a replica set => k scale rs new-replica-set --replicas=2 or k edit rs new-
 Create a deployment and output it into yaml =>  kubectl create deployment --image=nginx nginx --replicas=4 --dry-run=client -o yaml > nginx-deployment.yaml
 Get pods from a specific namespace => k get pods -n research
 Create a pod in a specific namespace => k run redis --image=redis -n finance
+List pods from all namespace => k get pods -A
