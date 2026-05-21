@@ -8,3 +8,4 @@ Create a deployment and output it into yaml =>  kubectl create deployment --imag
 Get pods from a specific namespace => k get pods -n research
 Create a pod in a specific namespace => k run redis --image=redis -n finance
 List pods from all namespace => k get pods -A
+Create a Service named redis-service of type ClusterIP to expose pod redis on port 6379   => kubectl expose pod redis --port=6379 --target-port=6379 --name=redis-service
