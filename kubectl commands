@@ -14,3 +14,4 @@ Create a Service named nginx of type NodePort to expose pod nginx's port 80 on p
 Replace a pod => k replace --force -f nginx.yaml
 Get pods with env:dev labels => k get pods --selector env=dev
 For checking multiple labels => k get pods --selector env=prod,bu=finance,tier=frontend
+Create a taint on node01 with key of spray, value of mortein and effect of NoSchedule => k taint node node01 spray=mortein:NoSchedule
