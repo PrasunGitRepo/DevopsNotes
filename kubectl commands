@@ -17,4 +17,4 @@ Get pods with env:dev labels => k get pods --selector env=dev
 For checking multiple labels => k get pods --selector env=prod,bu=finance,tier=frontend
 Create a taint on node01 with key of spray, value of mortein and effect of NoSchedule => k taint node node01 spray=mortein:NoSchedule
 Untaint => k taint node node01 spray=mortein:NoSchedule-
-Apply a label color=blue to node node01 => k label nodes node01 color=blue --overwrite=true
+Apply a label color=blue to node node01 => k label nodes node01 color=blue --overwrite=true (PLease see how to apply nodeaffinity in pods yaml)
