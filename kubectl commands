@@ -19,4 +19,4 @@ Create a taint on node01 with key of spray, value of mortein and effect of NoSch
 Untaint => k taint node node01 spray=mortein:NoSchedule-
 Apply a label color=blue to node node01 => k label nodes node01 color=blue --overwrite=true (PLease see how to apply nodeaffinity in pods yaml)
 Edit an existing pod => kubectl get pod webapp -o yaml > my-new-pod.yaml (OR) kubectl edit pod <pod name>
-Request (for scheduling fairness) & Limit (for protection/safety) => Cpu should have atleast request | Memory shoulod definately have limit (because when pod uses excessive memory pod crashes due to OOM)
+Request (for scheduling fairness) & Limit (for protection/safety) => Cpu should have atleast request | Memory should definately have limit (because when pod uses excessive memory pod crashes due to OOM)  | LimitRange is a Kubernetes object that sets default/min/max resource constraints for Pods or Containers within a namespace.
