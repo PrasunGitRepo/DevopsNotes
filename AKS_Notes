@@ -141,8 +141,46 @@ spec:
     volumeMounts:
     - name: app-storage
       mountPath: /usr/share/nginx/html/data
-
-  volumes:
+volumes:
   - name: app-storage
     persistentVolumeClaim:
       claimName: app-pvc
+
+
+##########################################################################################################################################################
+
+
+************ INGRESS *************** 
+
+Ingress is used to expose applications running inside AKS to external users.
+
+Without Ingress:
+
+Each service needs its own LoadBalancer and public IP.
+
+With Ingress:
+
+Multiple services can share a single public IP.
+Ingress routes requests to the correct service based on URL path or hostname.
+
+_________________________________________________________________________________________________________________________________________________________
+$$$$$$$$$ Steps for integrating our AKS with ingress controller END TO END $$$$$$$$$$$$$
+
+
+1 Create a dedicated public IP and namespace for ingress controller .
+2 Install ingress controller using helm (replace the pip of ingress controller which we created in step 01)
+3 Deploy application and expose it using a ClusterIP service.
+4 Create an Ingress resource with routing rules.
+5 Point DNS to the Ingress public IP.
+6 External traffic flows through NGINX Ingress → Service → Pod.
+
+
+
+
+
+
+
+
+
+
+
