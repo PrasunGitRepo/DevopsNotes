@@ -1,1 +1,148 @@
+###### AKS STORAGE ########
+First we create a storage class defining the storage configurations which the AKS should create for ex - Azure Managed disk, Storage account etc and also tier such as premium ssd etc.
+imp fields in storage class:- 
+1 Reclaim policy :- retain or delete (what happens to disk when PVC is deleted)
+2 Volume Binding mode :- Immediate / Waif dor first customer
+3 allow Volume expansion :- true/false (expand disk on demand)
+_______________________________________________________________________________________________________________________________________________________
+Secondly we have Persistent volume claim where its defined how much storage does the pod needs . For ex- 100 GB etc
+_______________________________________________________________________________________________________________________________________________________
+Lastly Persistent Volume is the real storage(Disk,azure storage class) which gets created once PVC is created.
+In case of AKS  - its autmoattically created by Azure
+_______________________________________________________________________________________________________________________________________________________
+############ CONFIG MAPS & SECRETS ################
 
+COnfig maps stores data or app vars which are not sesnitive 
+NOTE:- Config maps can also be mount to pod/deployment as a Volume
+
+SECRETS:- Secrets stores sensitive app vars such as DB password etc.
+_______________________________________________________________________________________________________________________________________________________ 
+
+1. StorageClass
+
+In AKS, you typically use the built-in StorageClass. For learning purposes:
+
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: managed-premium
+provisioner: disk.csi.azure.com
+parameters:
+  skuName: Premium_LRS
+reclaimPolicy: Delete
+volumeBindingMode: WaitForFirstConsumer
+allowVolumeExpansion: true
+2. PersistentVolume
+
+Normally AKS creates this automatically when using dynamic provisioning, but here's an example of a manually-created PV:
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: app-pv
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: managed-premium
+  hostPath:
+    path: /data/app
+
+Note: hostPath is only for learning/testing. In AKS production environments, Azure Disks are typically provisioned dynamically.
+
+3. PersistentVolumeClaim
+
+The application requests storage through a PVC.
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: app-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: managed-premium
+  resources:
+    requests:
+      storage: 5Gi
+
+Binding:
+
+app-pvc  --->  app-pv
+4. ConfigMap
+
+Application configuration.
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  APP_ENV: production
+  LOG_LEVEL: INFO
+  DB_HOST: mysql-service
+5. Secret
+
+Sensitive values.
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: app-secret
+type: Opaque
+stringData:
+  DB_USERNAME: admin
+  DB_PASSWORD: SuperSecretPassword
+6. Pod
+
+This Pod consumes everything:
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: demo-app
+spec:
+  containers:
+  - name: app
+    image: nginx
+
+    env:
+    - name: APP_ENV
+      valueFrom:
+        configMapKeyRef:
+          name: app-config
+          key: APP_ENV
+
+    - name: LOG_LEVEL
+      valueFrom:
+        configMapKeyRef:
+          name: app-config
+          key: LOG_LEVEL
+
+    - name: DB_HOST
+      valueFrom:
+        configMapKeyRef:
+          name: app-config
+          key: DB_HOST
+
+    - name: DB_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: app-secret
+          key: DB_USERNAME
+
+    - name: DB_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: app-secret
+          key: DB_PASSWORD
+
+    volumeMounts:
+    - name: app-storage
+      mountPath: /usr/share/nginx/html/data
+
+  volumes:
+  - name: app-storage
+    persistentVolumeClaim:
+      claimName: app-pvc
