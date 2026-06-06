@@ -173,6 +173,126 @@ $$$$$$$$$ Steps for integrating our AKS with ingress controller END TO END $$$$$
 4 Create an Ingress resource with routing rules.
 5 Point DNS to the Ingress public IP.
 6 External traffic flows through NGINX Ingress → Service → Pod.
+__________________________________________________________________________________________________________________________________________________________
+
+$$$$$$$$$$$$$$$$  EXTERNAL DNS $$$$$$$$$$$$$$$$
+
+ExternalDNS is a tool that automatically creates and updates your domain name (DNS) entries for your apps running in Kubernetes or cloud.
+
+==> STeps to implement External DNS
+🚀 Step-by-step implementation
+1. Create Azure DNS Zone
+Create in Azure Portal:
+example.com
+Note:
+Resource Group name
+DNS Zone name
+2. Enable AKS Managed Identity
+
+If creating new AKS:
+
+az aks create \
+  --enable-managed-identity
+
+If existing cluster:
+
+az aks update \
+  -g <rg> -n <aks-name> \
+  --enable-managed-identity
+3. Get AKS Managed Identity details
+az aks show -g <rg> -n <aks-name> --query identity
+
+You’ll get:
+
+Principal ID (important)
+4. Assign DNS permissions to AKS identity
+
+Give AKS identity access to Azure DNS:
+
+az role assignment create \
+  --assignee <AKS-Principal-ID> \
+  --role "DNS Zone Contributor" \
+  --scope /subscriptions/<sub-id>/resourceGroups/<dns-rg>/providers/Microsoft.Network/dnszones/example.com
+5. Enable AKS to use Workload Identity (recommended modern approach)
+az aks update \
+  -g <rg> -n <aks-name> \
+  --enable-oidc-issuer \
+  --enable-workload-identity
+6. Create Kubernetes Service Account (linked to Managed Identity)
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: external-dns
+  namespace: kube-system
+  annotations:
+    azure.workload.identity/client-id: "<managed-identity-client-id>"
+7. Install ExternalDNS (Azure provider + Workload Identity)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: external-dns
+  namespace: kube-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: external-dns
+  template:
+    metadata:
+      labels:
+        app: external-dns
+    spec:
+      serviceAccountName: external-dns
+      containers:
+      - name: external-dns
+        image: registry.k8s.io/external-dns/external-dns:v0.14.2
+        args:
+          - --source=ingress
+          - --provider=azure
+          - --registry=txt
+          - --txt-owner-id=aks-externaldns
+          - --azure-resource-group=<dns-rg>
+          - --azure-subscription-id=<subscription-id>
+8. Create Ingress with hostname annotation
+metadata:
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: app.example.com
+9. Apply workload identity binding (important step)
+
+Link Kubernetes ServiceAccount → Azure Identity:
+
+az identity federated-credential create
+
+This connects:
+
+AKS OIDC issuer
+Kubernetes Service Account
+Azure Managed Identity
+10. Deploy app + ingress
+
+Same as normal Kubernetes:
+
+Deployment
+Service
+Ingress
+
+ExternalDNS picks hostname automatically.
+#########################################################################################################################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
