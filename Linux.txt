@@ -27,7 +27,9 @@ Note:- this mv command is also used to rename the file mv testfile1.txt testfile
 20. Count the number of lines in a file --> wc -l
 21. Reboot the VM --> sudo reboot
 22. Display manual for a specific command --> man COMMAND
-23 . $PATH --> It tells the system where to look for executable programs when you type a command.
+23. $PATH --> It tells the system where to look for executable programs when you type a command.
+24. Zip a file -> zip archive.zip file.txt
+25. Unzip a file -> unzip archive.zip
 #######################################################################################################################################################################
 ls options:
 
@@ -69,6 +71,15 @@ d. if it starts with "b" then it is a block {i.e. harddisk}
 e. if it starts with "l" then it is a link{for ex- Symblink}
 
 2. create a soft link --> ln -s opt/de/ops/devops/command.txt cmds
+########################################################################################################################################################################
+
+FIND A FILE
+
+==> find [path.....] [expression]
+iname pattern {find . iname prasun}
+-mtime days  {find . -mtime +10 -mtime -90 }
+size num {find . -size 100M}
+use "-exec command" to execute a command against all files that are found 
 
 #######################################################################################################################################################################
 
