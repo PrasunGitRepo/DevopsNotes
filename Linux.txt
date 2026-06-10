@@ -169,6 +169,30 @@ third digit specifies other's permissions
 
 chmod 700 opt/dir
 
+umask (user file-creation mode mask) controls the default permissions assigned to newly created files and directories.
+
+It doesn't directly set permissions; instead, it removes permissions from the system defaults.
+
+Default permissions
+
+When created:
+
+Files start with 666 (rw-rw-rw-)
+No execute bits by default.
+Directories start with 777 (rwxrwxrwx)
+
+The umask value is subtracted from these defaults.
+
+Example: umask 022
+umask 022
+
+For a new file:
+
+666
+-022
+----
+644  (rw-r--r--)
+
 #######################################################################################################################################################################
 
 only root user can execute sudo commands
