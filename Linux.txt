@@ -122,6 +122,9 @@ a. Method 1 (using Vim)
 b. Method 2 {using sed command} { advantage it will change in all files in a directory at once}
 sed -i 's/coronavirus/covid19/g' samplefile.txt
 
+
+{grep and count ==> grep -ic error prasun.txt}
+
 #######################################################################################################################################################################
 
 --> Redirection & Piping
