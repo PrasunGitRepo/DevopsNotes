@@ -97,7 +97,11 @@ ls files.txt 1>out 2>out.err
 
 
 #######################################################################################################################################################################
+COMPARING files
 
+sdiff prasun.txt gupta.txt
+
+#########################################################################################################################################################################
 --> Filter
 
 1.  find a particular word using grep command--> grep -iR SELINUX /etc/*  {i-> it will ignore case sensitivity while searching & R-> to look inside files in subdirectories}
