@@ -30,6 +30,7 @@ Note:- this mv command is also used to rename the file mv testfile1.txt testfile
 23. $PATH --> It tells the system where to look for executable programs when you type a command.
 24. Zip a file -> zip archive.zip file.txt
 25. Unzip a file -> unzip archive.zip
+26. To switch to another user ==> su prasun {enter prasun's password}
 #######################################################################################################################################################################
 ls options:
 
