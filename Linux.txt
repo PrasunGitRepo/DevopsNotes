@@ -29,6 +29,14 @@ Note:- this mv command is also used to rename the file mv testfile1.txt testfile
 22. Display manual for a specific command --> man COMMAND
 23 . $PATH --> It tells the system where to look for executable programs when you type a command.
 #######################################################################################################################################################################
+ls options:
+
+1 -l --> long listing format
+2 -a --> list all files including hidden files
+3 -t --> sort by time , most recent edited will be on top
+4 -r --> reverse the order
+
+########################################################################################################################################################################
 ## install vim editor --> sudo yum install vim -y
 
 1. Create a new file using vim --> vim firrstfile.txt
