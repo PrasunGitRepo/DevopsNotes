@@ -26,6 +26,8 @@ Note:- this mv command is also used to rename the file mv testfile1.txt testfile
 19. Hard disk partition utilization --> df -h
 20. Count the number of lines in a file --> wc -l
 21. Reboot the VM --> sudo reboot
+22. Display manual for a specific command --> man COMMAND
+23 . $PATH --> It tells the system where to look for executable programs when you type a command.
 #######################################################################################################################################################################
 ## install vim editor --> sudo yum install vim -y
 
