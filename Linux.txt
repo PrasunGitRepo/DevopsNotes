@@ -150,7 +150,7 @@ chown -R ansible:devops /opt/devopsdir     {R== Recursively, ansible== user,  de
 by running this command the permission will become drwxr-xr-x
 
 --> changing the current permissions
-chmod 0-x opt/devopsdir            {o==other,  x==execute}
+chmod o-x opt/devopsdir            {u==user,g==group,a==all,o==other |||| r==read,w==write,x==execute}
 chmod g+w opt/dir
 
 --> Make a file executable
