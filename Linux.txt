@@ -129,6 +129,7 @@ d. ls -l |tail
 8. Current user --> whoami
 9. Delete a user "Jenkins" --> userdel -r jenkins
 10. Delete a group --> groupdel devops
+11. Modify group of a file --> chgrp groupname filename
 #######################################################################################################################################################################
 
 --> File Permissions
