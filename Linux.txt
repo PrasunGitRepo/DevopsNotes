@@ -125,6 +125,87 @@ sed -i 's/coronavirus/covid19/g' samplefile.txt
 
 {grep and count ==> grep -ic error prasun.txt}
 
+1. grep → Search lines
+📄 File: log.txt
+info system started
+error disk failed
+warning low memory
+error network down
+🔎 Command:
+grep "error" log.txt
+📤 Output (after):
+error disk failed
+error network down
+Case-insensitive:
+grep -i "ERROR" log.txt
+
+Same result.
+
+2. cut → Extract columns
+📄 File: users.txt
+1,prasun,admin
+2,rahul,user
+3,neha,devops
+✂️ Command:
+cut -d ',' -f 2 users.txt
+📤 Output:
+prasun
+rahul
+neha
+
+👉 We extracted 2nd column (names)
+
+3. awk → Powerful column + condition processing
+📄 File: marks.txt
+prasun 80
+rahul 45
+neha 90
+amit 35
+👉 Example 1: Print name + marks
+Command:
+awk '{print $1, $2}' marks.txt
+Output:
+prasun 80
+rahul 45
+neha 90
+amit 35
+👉 Example 2: Filter condition (marks > 50)
+Command:
+awk '$2 > 50' marks.txt
+Output:
+prasun 80
+neha 90
+👉 Example 3: Print only names of students who passed
+Command:
+awk '$2 > 50 {print $1}' marks.txt
+Output:
+prasun
+neha
+4. sed → Modify text (replace/delete)
+📄 File: log.txt
+error system failure
+error disk full
+warning low memory
+👉 Example 1: Replace word
+Command:
+sed 's/error/success/' log.txt
+Output:
+success system failure
+success disk full
+warning low memory
+👉 Example 2: Replace all occurrences in a line
+Command:
+sed 's/error/success/g' log.txt
+Output:
+success system failure
+success disk full
+warning low memory
+👉 Example 3: Delete lines containing a pattern
+Command:
+sed '/error/d' log.txt
+Output:
+warning low memory
+
 #######################################################################################################################################################################
 
 --> Redirection & Piping
