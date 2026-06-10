@@ -81,6 +81,11 @@ iname pattern {find . iname prasun}
 size num {find . -size 100M}
 use "-exec command" to execute a command against all files that are found 
 
+
+a*.txt => any txt file starting with a
+a?.txt => any txt file starting with which has exactly 2 words in its name
+a[aeiou].txt => a specific 2 letter
+
 #######################################################################################################################################################################
 
 --> Filter
