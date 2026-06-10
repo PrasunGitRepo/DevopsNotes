@@ -250,12 +250,23 @@ print all env variables ==> printenv
 
 Create an ENV VAR ==> export PRASUN='prasun'
 ##########################################################################################################################################################################
-Sort by CPU usage
+Sort by CPU usage ==> ps aux --sort=-%cpu
 
-ps aux --sort=-%cpu
+Kill a process ==> kill pid
 
 #######################################################################################################################################################################
+CRONJOBS
 
+List your cronjobs ==> crontab -l
+Create a cronjob ==>>>>
+1 vi my-cron
+
+0 7 * * * /opt/sales/weekly-report
+
+2 crontab my-cron
+
+
+########################################################################################################################################################################
 --> Users & Groups
 
 1. In order to get the information about the user --> id "username"
