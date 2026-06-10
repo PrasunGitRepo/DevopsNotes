@@ -398,6 +398,25 @@ sudo systemctl status jenkins
 1. yum install httpd
 2. yum remove httpd
 
+| Task                 | 🟢 Ubuntu / Debian (APT)      | 🔴 RHEL / CentOS / Rocky (DNF/YUM) |
+| -------------------- | ----------------------------- | ---------------------------------- |
+| Update repo metadata | `sudo apt update`             | `sudo dnf check-update`            |
+| Install package      | `sudo apt install nginx -y`   | `sudo dnf install nginx -y`        |
+| Remove package       | `sudo apt remove nginx`       | `sudo dnf remove nginx`            |
+| Search package       | `apt search nginx`            | `dnf search nginx`                 |
+| Package info         | `apt show nginx`              | `dnf info nginx`                   |
+| System upgrade       | `sudo apt upgrade -y`         | `sudo dnf update -y`               |
+| Install local file   | `sudo apt install ./file.deb` | `sudo dnf install file.rpm`        |
+
+
+| Task             | Ubuntu / Debian            | RHEL / CentOS              |
+| ---------------- | -------------------------- | -------------------------- |
+| Download file    | `wget URL` / `curl -O URL` | `wget URL` / `curl -O URL` |
+| Install package  | `sudo dpkg -i file.deb`    | `sudo rpm -ivh file.rpm`   |
+| Fix dependencies | `sudo apt -f install`      | `sudo dnf install -y`      |
+| Extract archive  | `tar -xvzf file.tar.gz`    | `tar -xvzf file.tar.gz`    |
+
+
 #######################################################################################################################################################################
 ==> Services
 
