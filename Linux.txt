@@ -448,6 +448,75 @@ Task manager in Linux --> top or ps aux
 1. On google chrome download link --> Right click --> copy link address
 2. curl "url" -o tree-0.1.deb
 3. dpkg -i tree-0.1.deb
+#########################################################################################################################################################################
+
+Step-by-step LVM process (Azure Linux VM)
+
+Assume new disk = /dev/sdb
+
+🟨 Step 1: Identify disk
+lsblk
+🟨 Step 2: Create Physical Volume (PV)
+
+👉 Convert disk into LVM usable format
+
+sudo pvcreate /dev/sdb
+
+Check:
+
+sudo pvs
+🟨 Step 3: Create Volume Group (VG)
+
+👉 Group one or more physical disks
+
+sudo vgcreate data_vg /dev/sdb
+
+Check:
+
+sudo vgs
+🟨 Step 4: Create Logical Volume (LV)
+
+👉 This is the actual usable storage
+
+Example: 10GB LV
+
+sudo lvcreate -L 10G -n data_lv data_vg
+
+Check:
+
+sudo lvs
+🟨 Step 5: Create filesystem
+sudo mkfs.ext4 /dev/data_vg/data_lv
+🟨 Step 6: Create mount point
+sudo mkdir /data
+🟨 Step 7: Mount LV
+sudo mount /dev/data_vg/data_lv /data
+
+Verify:
+
+df -h
+🟨 Step 8: Make it persistent (fstab)
+
+Get UUID:
+
+sudo blkid
+
+Edit:
+
+sudo vi /etc/fstab
+
+Add:
+
+/dev/data_vg/data_lv  /data  ext4  defaults  0  2
+
+Test:
+
+sudo mount -a
+🟦 Visual comparison
+Simple method
+Disk → Partition → Format → Mount
+LVM method
+Disk → PV → VG → LV → Format → Mount
 
 --> to list all the DPKG packages installed on the system --> dpkg-l
 --> In Ubuntu, we have apt in place of yum
