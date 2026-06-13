@@ -28,3 +28,4 @@ View enabled admission controller => kube-apiserver -h | grep enable-admission-p
 To enable a new admission controller (Two types -> Mutating, validation) , go inside /etc/kubernetes/maniefests/kube-apiserver.yaml (there you would find a section of enableadmissionplugins) . If you want to disable a default admission controller => in the same file add another line with disenableadmissionplugins
 To enable HPA autoscaling/monitoring - first prereq is to install metric server.
 Check logs for a pod ==> k logs -f podname containername
+Rolling Update :- If you dont specify a update strategy while creating the deployment - it will be by default rolling update . In Rolling update - we take down older version pods and bring up newer version pods one by one.
