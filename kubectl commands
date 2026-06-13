@@ -26,3 +26,4 @@ Prioirty class : -1 billion to +2 billion range . Higher the prioirty more impor
 While working with custom scheduler , how to find which scheduler scheduled the pod => kubectl get events -o wide and you can also investigate logs of that custom scheduler via => kubectl logs my-custom-scheduler
 View enabled admission controller => kube-apiserver -h | grep enable-admission-plugins or in case of kubectl exec -it kube-apiserver-controlplane -- kube-apiserver -h |grep enable-admission-plugin
 To enable a new admission controller (Two types -> Mutating, validation) , go inside /etc/kubernetes/maniefests/kube-apiserver.yaml (there you would find a section of enableadmissionplugins) . If you want to disable a default admission controller => in the same file add another line with disenableadmissionplugins
+To enable HPA autoscaling/monitoring - first prereq is to install metric server.
