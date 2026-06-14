@@ -31,7 +31,7 @@ Check logs for a pod ==> k logs -f podname containername
 Rolling Update :- If you dont specify a update strategy while creating the deployment - it will be by default rolling update . In Rolling update - we take down older version pods and bring up newer version pods one by one.
 In Docker, CMD is a Dockerfile instruction that specifies the default command to run when a container starts. The command field corresponds to ENTRYPOINT, and the args field corresponds to CMD in some container runtimes.
 Secrets and config maps can be injected into pods in three ways -> 1 specific vars/secrets 2 entire vars/secret 3 mount as a volume
-Encrypting secret data at rest => Encrypting data at rest in Kubernetes means encrypting sensitive data (such as Secrets) before it is stored in the etcd database, so it cannot be read directly from disk or backups.It is configured on the kube-apiserver using an EncryptionConfiguration file and protects data stored in the cluster.
+Encrypting secret data at rest => Encrypting data at rest in Kubernetes means encrypting sensitive data (such as Secrets) before it is stored in the etcd database, so it cannot be read directly from disk or backups.It is configured on the kube-apiserver using an EncryptionConfiguration file and protects data stored in the cluster. https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/#encrypting-your-data
 
 
 
