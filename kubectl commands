@@ -34,8 +34,8 @@ Secrets and config maps can be injected into pods in three ways -> 1 specific va
 Encrypting secret data at rest => Encrypting data at rest in Kubernetes means encrypting sensitive data (such as Secrets) before it is stored in the etcd database, so it cannot be read directly from disk or backups.It is configured on the kube-apiserver using an EncryptionConfiguration file and protects data stored in the cluster. https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/#encrypting-your-data
 Types of Multi-container pods -> 1 INIT CONTAINER=> first init container starts and ends then main pod runs 2 SIDE CAR CONTAINER=> its just like INIT where sidecar starts first but instead of ending it runs throughout the lifecycle of pod 3 COLOCATED CONTAINERS => both containers run throughout the lifecycle of pod 
 Exec into pod ==> k exec -it app -- /bin/bash   OR k exec -it app -- /bin/sh
-
-
+Kubernetes Upgrade || k drain nodename (this will drain node as well as mark it unschedulable) (K cordon nodename) || To remove it ==> k uncordon nodename
+Kube api server => version x | controller manager, scheduler, kubectl => x-1 | kubelet , kube-proxy x-2 | And we should only jump 1 level version for ex -> 1.9 to 1.10
 
 
 
