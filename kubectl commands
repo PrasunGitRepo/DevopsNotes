@@ -37,7 +37,7 @@ Exec into pod ==> k exec -it app -- /bin/bash   OR k exec -it app -- /bin/sh
 Kubernetes Upgrade || k drain nodename (this will drain node as well as mark it unschedulable) (K cordon nodename) || To remove it ==> k uncordon nodename
 Kube api server => version x | controller manager, scheduler, kubectl => x-1 | kubelet , kube-proxy x-2 | And we should only jump 1 level version for ex -> 1.9 to 1.10
 To find out OS of node => cat /etc/*release*
-
+Bckup of all resources => k get all --all-namespace -o yaml > all-deploy-services.yaml
 
 
 
