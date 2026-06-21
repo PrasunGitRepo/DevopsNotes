@@ -60,6 +60,8 @@ High-value directories to memorize
 
 The CoreDNS Service is a Kubernetes ClusterIP Service that provides a stable IP address for all pods to send DNS queries to. Coredns configurations are stored in config map.
 
+To find which pod is attached on which service => k get pods -o wide & k get endpoints
+
 
 
 
