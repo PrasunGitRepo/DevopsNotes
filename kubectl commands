@@ -62,6 +62,8 @@ The CoreDNS Service is a Kubernetes ClusterIP Service that provides a stable IP 
 
 To find which pod is attached on which service => k get pods -o wide & k get endpoints
 
+Get details of ingress resources ==> K get ingress
+
 
 
 
