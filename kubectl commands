@@ -40,7 +40,7 @@ To find out OS of node => cat /etc/*release*
 Bckup of all resources => k get all --all-namespace -o yaml > all-deploy-services.yaml
 
 Networking commands
-ip addr , ip link , ip route
+ip addr , ip link , ip route , ps aux
 
 High-value directories to memorize
 
