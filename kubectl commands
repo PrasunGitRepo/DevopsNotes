@@ -40,7 +40,18 @@ To find out OS of node => cat /etc/*release*
 Bckup of all resources => k get all --all-namespace -o yaml > all-deploy-services.yaml
 
 
+High-value directories to memorize
 
+/etc/kubernetes	Kubernetes configs
+/etc/kubernetes/manifests	Static Pods
+/etc/kubernetes/pki	Certificates
+/etc/cni/net.d	CNI configs
+/opt/cni/bin	CNI binaries
+/var/lib/kubelet	Kubelet data/config
+/var/lib/etcd	etcd database
+/var/lib/containerd	containerd data
+/run/containerd	containerd socket/runtime
+~/.kube/config	kubectl config
 
 
 
