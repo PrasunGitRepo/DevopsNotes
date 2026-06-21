@@ -65,6 +65,9 @@ To find which pod is attached on which service => k get pods -o wide & k get end
 Get details of ingress resources ==> K get ingress
 Create nginx ==> k create nginx --help
 
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+
 
 
 
