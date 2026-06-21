@@ -56,6 +56,9 @@ High-value directories to memorize
 ~/.kube/config	kubectl config
 
 
+== For finding ip range, mode , type etc - either look inside /etc/kubernetes/manifests or k logs podnames etc
+
+
 
 
 
