@@ -87,7 +87,8 @@ View certificate ==> openssl x509 -in filepath -text -noout
 
 NOTE: journalctl is basically the Linux equivalent of Windows Event Viewer.
 ex ==> journalctl -u etcd.service -l
-
+If nothing is working , check docker (container) logs via ==> crictl logs
+(usually etcd will have its own CA)
 
 
 
