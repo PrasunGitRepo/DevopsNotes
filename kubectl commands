@@ -90,8 +90,8 @@ ex ==> journalctl -u etcd.service -l
 If nothing is working , check docker (container) logs via ==> crictl logs
 (usually etcd will have its own CA)
 
-
-
+#####CERTFICATE API ==> https://kubernetes.io/docs/tasks/tls/certificate-issue-client-csr/
+##########################################################################################################################################
 
 
 
