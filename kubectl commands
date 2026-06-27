@@ -83,6 +83,11 @@ For all other certs we will use CA key pair to sign them, for example amin user 
 
 NOTE: All components of K8s need a CA root certificate 
 
+View certificate ==> openssl x509 -in filepath -text -noout
+
+NOTE: journalctl is basically the Linux equivalent of Windows Event Viewer.
+ex ==> journalctl -u etcd.service -l
+
 
 
 
