@@ -99,3 +99,5 @@ To view default kubeconfig file ==> kubectl config view
 Roles/cluster and role/cluster role binding
 
 Role is always namespace-scoped, while ClusterRole is cluster-scoped and more flexible because it can be used either cluster-wide or within individual namespaces.
+
+==> Run command via another user ==> k get pods --as dev-user
