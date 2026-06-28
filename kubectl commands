@@ -92,8 +92,10 @@ If nothing is working , check docker (container) logs via ==> crictl logs
 
 #####CERTFICATE API ==> https://kubernetes.io/docs/tasks/tls/certificate-issue-client-csr/
 ##########################################################################################################################################
-
-
+KUBE config file is stored by default in ($HOME/.kube/config) (kube config is hidden , please use ls -latr)
+view root ==> echo $HOME
+To view default kubeconfig file ==> kubectl config view 
+##########################################################################################################################################
 
 
 
