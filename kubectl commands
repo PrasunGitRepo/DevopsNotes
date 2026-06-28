@@ -96,6 +96,6 @@ KUBE config file is stored by default in ($HOME/.kube/config) (kube config is hi
 view root ==> echo $HOME
 To view default kubeconfig file ==> kubectl config view 
 ##########################################################################################################################################
+Roles/cluster and role/cluster role binding
 
-
-
+Role is always namespace-scoped, while ClusterRole is cluster-scoped and more flexible because it can be used either cluster-wide or within individual namespaces.
