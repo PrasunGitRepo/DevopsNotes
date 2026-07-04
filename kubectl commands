@@ -101,3 +101,8 @@ Roles/cluster and role/cluster role binding
 Role is always namespace-scoped, while ClusterRole is cluster-scoped and more flexible because it can be used either cluster-wide or within individual namespaces.
 
 ==> Run command via another user ==> k get pods --as dev-user
+###################################################################################################################################################################
+
+Create a service account ==> k create serviceaccount "NAME"
+
+Token of service account is stored in => /var/run/secrets/kubernetes.io/serviceaccount/token
