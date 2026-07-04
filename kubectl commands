@@ -107,3 +107,7 @@ Create a service account ==> k create serviceaccount "NAME"
 
 Token of service account is stored in => /var/run/secrets/kubernetes.io/serviceaccount/token
 Create the token => k create token --duration 2h
+###################################################################################################################################################################
+Create a docker registry secret ->
+ kubectl create secret docker-registry my-secret --docker-server=DOCKER_REGISTRY_SERVER --docker-username=DOCKER_USER --docker-password=DOCKER_PASSWORD --docker-email=DOCKER_EMAIL
+###################################################################################################################################################################
