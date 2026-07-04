@@ -111,3 +111,4 @@ Create the token => k create token --duration 2h
 Create a docker registry secret ->
  kubectl create secret docker-registry my-secret --docker-server=DOCKER_REGISTRY_SERVER --docker-username=DOCKER_USER --docker-password=DOCKER_PASSWORD --docker-email=DOCKER_EMAIL
 ###################################################################################################################################################################
+SecurityContext is a Kubernetes setting that controls how a pod or container runs on the machine. It defines the security rules, such as which user the container runs as, whether it can run as root, and what permissions it has.
