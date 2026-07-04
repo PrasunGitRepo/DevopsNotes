@@ -106,3 +106,4 @@ Role is always namespace-scoped, while ClusterRole is cluster-scoped and more fl
 Create a service account ==> k create serviceaccount "NAME"
 
 Token of service account is stored in => /var/run/secrets/kubernetes.io/serviceaccount/token
+Create the token => k create token --duration 2h
