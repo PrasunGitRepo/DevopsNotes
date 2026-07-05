@@ -20,3 +20,6 @@ env:
 
 - name: shared-volume 
   emptyDir: {}
+
+
+4. Get logs from a specific container in multicontainer pod ==> kubectl logs mc-pod -n mc-namespace -c mc-pod-3
