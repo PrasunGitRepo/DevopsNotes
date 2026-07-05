@@ -112,3 +112,9 @@ Create a docker registry secret ->
  kubectl create secret docker-registry my-secret --docker-server=DOCKER_REGISTRY_SERVER --docker-username=DOCKER_USER --docker-password=DOCKER_PASSWORD --docker-email=DOCKER_EMAIL
 ###################################################################################################################################################################
 SecurityContext is a Kubernetes setting that controls how a pod or container runs on the machine. It defines the security rules, such as which user the container runs as, whether it can run as root, and what permissions it has.
+###################################################################################################################################################################
+What is a NetworkPolicy?
+
+A NetworkPolicy is a Kubernetes resource that controls which pods can communicate with other pods (or external networks).
+
+By default, in most Kubernetes clusters, all pods can talk to each other unless a NetworkPolicy restricts that traffic (assuming the cluster's CNI plugin supports NetworkPolicy).
