@@ -23,3 +23,8 @@ env:
 
 
 4. Get logs from a specific container in multicontainer pod ==> kubectl logs mc-pod -n mc-namespace -c mc-pod-3
+
+5. Install
+dpkg -i ./cri-docker_0.3.16.3-0.debian.deb 
+systemctl start cri-docker.service 
+systemctl enable cri-docker.service (enable to start on boot)
