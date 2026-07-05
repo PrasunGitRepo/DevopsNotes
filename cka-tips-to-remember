@@ -28,3 +28,7 @@ env:
 dpkg -i ./cri-docker_0.3.16.3-0.debian.deb 
 systemctl start cri-docker.service 
 systemctl enable cri-docker.service (enable to start on boot)
+
+6. expose using nodePort service
+kubectl expose deployment hr-web-app --port=8080 --name=hr-web-app-service --type=NodePort service/hr-web-app-service exposed --dry-run=client -o yaml >prasun.yaml 
+vi prasun.yaml ==> add nodePort: 30082
