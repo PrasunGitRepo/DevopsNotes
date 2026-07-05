@@ -1,1 +1,18 @@
+1. Downward API -> https://kubernetes.io/docs/tasks/inject-data-application/environment-variable-expose-pod-information/
 
+env:
+- name: NODE_NAME
+  valueFrom:
+    fieldRef:
+      fieldPath: spec.nodeName
+2. Run a command on a container
+  - name: mc-pod-2
+    image: busybox:1
+    command:
+    - sh
+    - -c
+    - |
+      while true; do
+        date >> /var/log/shared/date.log
+        sleep 1
+      done
