@@ -384,7 +384,7 @@ the RPM package manager is a powerful package management system used by Red Hat 
 --> Install a software from internet
 1. On google chrome download link --> Right click --> copy link address
 2. curl "url" -o tree-0.1.rpm
-3. rpm -ivh tree-0.1.rpm
+3. rpm -ivh tree-0.1.rpm  (dpkg -i tree_0.1.deb)
 
 --> Uninstall
 rpm -e tree-0.1.rpm
