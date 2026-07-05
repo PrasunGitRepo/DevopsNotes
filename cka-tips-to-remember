@@ -16,3 +16,7 @@ env:
         date >> /var/log/shared/date.log
         sleep 1
       done
+3. shared volume for multicontainer pods
+
+- name: shared-volume 
+  emptyDir: {}
