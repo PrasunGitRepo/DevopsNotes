@@ -35,3 +35,5 @@ vi prasun.yaml ==> add nodePort: 30082
 
 7 switch to a namespace
 kubectl config set-context --current --namespace=logging-ns
+
+8 For ingress questions , first obtain the name of ingress class => kubectl get ingressclass
