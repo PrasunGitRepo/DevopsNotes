@@ -37,3 +37,10 @@ vi prasun.yaml ==> add nodePort: 30082
 kubectl config set-context --current --namespace=logging-ns
 
 8 For ingress questions , first obtain the name of ingress class => kubectl get ingressclass
+
+9 Helm
+==> helm list
+==> helm repo list
+==> helm repo update
+==> helm search repo nginx --versions
+==> helm upgrade helmname chartname --version 18.1.5
