@@ -45,6 +45,11 @@ kubectl config set-context --current --namespace=logging-ns
 ==> helm search repo nginx --versions
 ==> helm upgrade helmname chartname --version 18.1.5
 
+
+==> helm get manifest "release name"
+==> helm uninstall "release name"
+
+
 10 nslookup on pod and service
 
 kubectl run test-nslookup --image=busybox:1.28 --rm -it --restart=Never -- nslookup nginx-resolver-service
