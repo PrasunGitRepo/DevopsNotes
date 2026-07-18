@@ -44,6 +44,7 @@ kubectl config set-context --current --namespace=logging-ns
 ==> helm repo update
 ==> helm search repo nginx --versions
 ==> helm upgrade helmname chartname --version 18.1.5
+==> To verify helm charts ==> helm lint
 
 
 ==> helm get manifest "release name"
