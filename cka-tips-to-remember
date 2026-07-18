@@ -60,3 +60,5 @@ kubectl run test-nslookup --image=busybox:1.28 --rm -it --restart=Never -- nsloo
 
 11 use another kubeconfig to run a command
 kubectl get nodes --kubeconfig /root/prasun.kubeconfig
+
+12 if pod is not working correctly and the config is correct - alwasys check pods in cntrol plane
